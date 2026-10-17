@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0d1020">
+<title>Ascensão Infinita</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..800&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+/* Observatório à noite. Latão = Estrelas; azinhavre = dá para comprar; brasa = reinício e desafio; nebulosa = Supernova e eventos. */
+:root{color-scheme:dark;
+ --ink-0:oklch(0.15 0.03 268);--ink-1:oklch(0.18 0.032 268);--ink-2:oklch(0.21 0.036 268);--ink-3:oklch(0.25 0.04 268);--ink-in:oklch(0.13 0.028 268);
+ --rule:oklch(0.42 0.04 268 / .38);--rule-2:oklch(0.50 0.05 268 / .6);
+ --vellum:oklch(0.95 0.018 85);--vellum-2:oklch(0.84 0.02 260);--vellum-3:oklch(0.72 0.025 262);--vellum-4:oklch(0.60 0.03 264);
+ --brass:oklch(0.83 0.13 82);--brass-ink:oklch(0.25 0.05 70);--brass-wash:oklch(0.83 0.13 82 / .1);
+ --verd:oklch(0.80 0.11 172);--verd-ink:oklch(0.23 0.05 172);--verd-wash:oklch(0.80 0.11 172 / .1);
+ --ember:oklch(0.72 0.15 32);--ember-wash:oklch(0.72 0.15 32 / .1);
+ --nebula:oklch(0.76 0.11 295);--nebula-ink:oklch(0.22 0.06 295);--nebula-wash:oklch(0.76 0.11 295 / .12);
+ --serif:"Fraunces",Georgia,serif;--sans:"Atkinson Hyperlegible",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace;
+ --r-sm:8px;--r-md:12px;--r-lg:18px;--ease:cubic-bezier(.16,1,.3,1);--rail:232px}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--ink-0);color:var(--vellum);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:6px}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.01em}
+.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums lining-nums}
+.brass{color:var(--brass)}.verd{color:var(--verd)}.ember{color:var(--ember)}.nebula{color:var(--nebula)}
+[hidden]{display:none!important}
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:100dvh}
+
+/* trilho */
+.rail{position:sticky;top:0;height:100dvh;display:flex;flex-direction:column;gap:6px;padding:22px 14px;border-right:1px solid var(--rule);background:oklch(0.15 0.03 268 / .82)}
+.brand{display:flex;align-items:center;gap:12px;padding:0 8px 22px}
+.seal{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--brass-ink);background:var(--brass);box-shadow:0 0 0 4px var(--brass-wash),0 0 24px oklch(0.83 0.13 82 / .35);flex:none}
+.seal .i{width:22px;height:22px;stroke-width:2.2}
+.brand b{display:block;font-family:var(--serif);font-size:19px;line-height:1.1;font-weight:700}
+.brand small{display:block;font-size:12px;color:var(--vellum-3);letter-spacing:.06em}
+.nav{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:1px solid transparent;border-radius:var(--r-md);background:none;color:var(--vellum-3);font-size:15px;font-weight:700;text-align:left;transition:background .2s,color .2s,border-color .2s}
+.nav:hover{color:var(--vellum);background:var(--ink-2)}
+.nav[aria-current="page"]{color:var(--vellum);background:var(--ink-2);border-color:var(--rule-2)}
+.nav[aria-current="page"] .i{color:var(--brass)}
+.nav.locked{opacity:.5}
+.badge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:var(--verd);color:var(--verd-ink);font-size:12px;font-weight:700;display:grid;place-items:center}
+.badge.dot{min-width:10px;height:10px;padding:0;background:var(--brass)}
+.badge.neb{background:var(--nebula);color:var(--nebula-ink)}
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.status{display:flex;align-items:center;gap:8px;padding:6px 12px;font-size:13px;color:var(--vellum-4)}
+.status::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--verd)}
+.status.saved::before{animation:blink .5s ease 2}
+
+/* HUD */
+.main{min-width:0;display:flex;flex-direction:column}
+.hud{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:22px;padding:14px 28px;border-bottom:1px solid var(--rule);background:oklch(0.15 0.03 268 / .92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.hud-stat small,.hud-rb small{display:block;font-size:12px;color:var(--vellum-3);letter-spacing:.04em}
+.hud-stat b{font-size:22px;line-height:1.1}
+.hud-stat .up{margin-left:8px;font-size:14px;color:var(--verd);font-family:var(--sans);font-weight:700}
+.hud-rb{flex:1;max-width:320px;min-width:140px}
+.track{height:8px;border-radius:8px;background:var(--ink-in);border:1px solid var(--rule);overflow:hidden}
+.track i{display:block;height:100%;width:100%;transform-origin:left;transform:scaleX(0);background:var(--brass);transition:transform .3s linear}
+.track.verd i{background:var(--verd)}.track.ember i{background:var(--ember)}.track.neb i{background:var(--nebula)}
+.event{display:flex;align-items:center;gap:8px;padding:7px 12px;border-radius:99px;font-size:13px;font-weight:700;color:var(--vellum-3);border:1px solid var(--rule);white-space:nowrap}
+.event.on{color:var(--nebula);border-color:oklch(0.76 0.11 295 / .5);background:var(--nebula-wash);animation:breathe 1.6s ease-in-out infinite}
+@keyframes breathe{50%{box-shadow:0 0 18px oklch(0.76 0.11 295 / .35)}}
+.iconbtn{margin-left:auto;width:44px;height:44px;border-radius:var(--r-md);display:grid;place-items:center;border:1px solid var(--rule-2);background:var(--ink-1);color:var(--vellum-2);flex:none}
+.iconbtn:hover{color:var(--brass);border-color:var(--brass)}
+.hud .mbrand{display:none}
+.coach{display:flex;align-items:center;gap:14px;margin:18px 28px 0;padding:13px 16px;border-radius:var(--r-lg);border:1px solid oklch(0.83 0.13 82 / .45);background:var(--brass-wash);text-align:left;transition:border-color .2s,transform .25s var(--ease)}
+.coach:hover{border-color:var(--brass);transform:translateY(-1px)}
+.coach .ci{flex:none;width:40px;height:40px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--brass);color:var(--brass-ink)}
+.coach .ci .i{animation:spin 8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.coach small{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--brass)}
+.coach .ct{font-size:16px;font-weight:700;line-height:1.4}
+.coach .go{margin-left:auto;color:var(--brass);flex:none}
+
+/* vistas */
+.views{padding:22px 28px 60px}
+.view{animation:viewIn .45s var(--ease)}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}}
+.vh{margin-bottom:16px}
+.vh h2{font-size:30px;line-height:1.15}
+.lead{margin:6px 0 0;max-width:70ch;color:var(--vellum-2)}
+.lead b{color:var(--vellum)}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--vellum-3);margin:34px 0 12px;display:flex;align-items:center;gap:12px}
+.kicker::after{content:"";flex:1;height:1px;background:var(--rule)}
+.small{font-size:14px;color:var(--vellum-3);margin:8px 0 12px}
+.lockmsg{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:var(--r-md);border:1px dashed var(--rule-2);color:var(--vellum-3);font-size:15px;margin:0 0 14px}
+
+/* início */
+.home{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(330px,.85fr);gap:28px;align-items:start}
+.observatory{position:relative;display:grid;place-items:center;min-height:min(70vh,640px)}
+#orrery{position:absolute;inset:0;width:100%;height:100%}
+.readout{position:relative;text-align:center;padding:30px 36px;border-radius:50%;background:radial-gradient(closest-side,oklch(0.15 0.03 268 / .92),oklch(0.15 0.03 268 / .6) 70%,transparent)}
+.readout small{display:block;font-size:13px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--vellum-3)}
+.counter{display:block;font-family:var(--serif);font-weight:750;font-size:clamp(46px,7vw,100px);line-height:1.04;letter-spacing:-.03em;color:var(--brass);font-variant-numeric:tabular-nums lining-nums;text-shadow:0 0 40px oklch(0.83 0.13 82 / .3)}
+.counter.reborn{animation:reborn 1s var(--ease)}
+@keyframes reborn{0%{transform:scale(1.35);filter:blur(8px)}}
+.rate{display:inline-flex;align-items:center;gap:8px;margin-top:6px;font-size:18px;font-weight:700;color:var(--verd)}
+.rate::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--verd);animation:blink 1s ease-in-out infinite}
+@keyframes blink{50%{opacity:.25}}
+.orrery-note{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:13px;color:var(--vellum-4)}
+.side{display:flex;flex-direction:column;gap:18px}
+.block{padding:20px;border-radius:var(--r-lg);border:1px solid var(--rule);background:var(--ink-1)}
+.block h3{font-size:21px}
+.meta{font-size:14px;color:var(--vellum-3)}
+.bh{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.trade{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.trade div{padding:10px 12px;border-radius:var(--r-md);font-size:14px;line-height:1.4}
+.trade b{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:3px}
+.trade .i{width:15px;height:15px}
+.lose{background:var(--ember-wash);border:1px solid oklch(0.72 0.15 32 / .35)}.lose b{color:var(--ember)}
+.win{background:var(--verd-wash);border:1px solid oklch(0.80 0.11 172 / .35)}.win b{color:var(--verd)}
+.cta{position:relative;overflow:hidden;width:100%;min-height:52px;border-radius:var(--r-md);border:1px solid var(--rule-2);background:var(--ink-3);color:var(--vellum-3);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:10px;padding:8px 14px;transition:transform .2s var(--ease),box-shadow .3s}
+.cta.ready{background:var(--brass);border-color:transparent;color:var(--brass-ink);box-shadow:0 8px 30px oklch(0.83 0.13 82 / .3)}
+.cta.ready.neb{background:var(--nebula);color:var(--nebula-ink);box-shadow:0 8px 30px oklch(0.76 0.11 295 / .35)}
+.cta.ready.go{background:var(--verd);color:var(--verd-ink);box-shadow:none}
+.cta.ready::after{content:"";position:absolute;inset:0 auto 0 -40%;width:30%;background:linear-gradient(100deg,transparent,oklch(1 0 0 / .45),transparent);transform:skewX(-20deg);animation:shine 2.6s ease-in-out infinite}
+.cta.ready:hover{transform:translateY(-2px)}.cta.ready:active{transform:scale(.98)}
+@keyframes shine{60%,100%{left:120%}}
+.cta.danger{background:none;border-color:oklch(0.72 0.15 32 / .5);color:var(--ember);min-height:44px;font-size:14px}
+.cta.armed{background:var(--vellum);color:var(--ink-0)}
+.ledger{list-style:none;margin:12px 0 0;padding:0}
+.ledger li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-top:1px solid var(--rule);font-size:15px}
+.ledger li:first-child{border-top:0}
+.ledger li span{color:var(--vellum-2)}
+.ledger li b{font-family:var(--serif);font-variant-numeric:tabular-nums;text-align:right}
+.ledger li.neg b{color:var(--ember)}
+.ledger li.total{border-top:1px solid var(--rule-2)}
+.ledger li.total span,.ledger li.total b{color:var(--verd);font-weight:700}
+.steps-mini{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.steps-mini div{padding:10px;border-radius:var(--r-md);border:1px solid var(--rule);text-align:center;font-size:13px;color:var(--vellum-3)}
+.steps-mini b{display:block;font-family:var(--serif);font-size:20px;color:var(--vellum)}
+.steps-mini .on{border-color:oklch(0.83 0.13 82 / .5);background:var(--brass-wash)}
+
+/* produção */
+.prod{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start}
+.prod-side{position:sticky;top:96px;display:flex;flex-direction:column;gap:14px}
+.gens{border:1px solid var(--rule);border-radius:var(--r-lg);background:var(--ink-1);overflow:hidden}
+.gen{display:grid;grid-template-columns:52px minmax(0,1fr) 120px 150px 200px;align-items:center;gap:16px;padding:16px 18px;border-top:1px solid var(--rule);transition:background .25s}
+.gen:first-child{border-top:0}
+.gen.can{background:linear-gradient(90deg,var(--verd-wash),transparent 60%)}
+.gen.locked{opacity:.55}.gen.locked .gico{border-style:dashed}
+.gico{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--rule-2);background:var(--ink-2);color:var(--brass)}
+.gico .i{width:26px;height:26px}
+.gen h3{font-size:18px}
+.gen p{margin:0;font-size:14px;color:var(--vellum-3)}
+.mile{display:flex;align-items:center;gap:10px;margin-top:7px}
+.mile .track{flex:1;max-width:120px;height:6px}
+.mile small{font-size:13px;color:var(--vellum-3);white-space:nowrap}
+.gnum b{display:block;font-size:24px;line-height:1.1;overflow-wrap:anywhere}
+.gnum small,.gout small{font-size:12.5px;color:var(--vellum-4)}
+.gout b{display:block;font-size:15px;color:var(--verd);overflow-wrap:anywhere}
+.buy{width:100%;min-height:48px;padding:9px 14px;border:0;border-radius:var(--r-md);background:var(--verd);color:var(--verd-ink);font-weight:700;font-size:15px;line-height:1.25;white-space:pre-line;transition:transform .15s var(--ease),filter .2s}
+.buy:not(:disabled):hover{filter:brightness(1.08);transform:translateY(-1px)}
+.buy:not(:disabled):active{transform:scale(.97)}
+.buy:disabled{background:var(--ink-3);color:var(--vellum-3);font-weight:400}
+.buy.pop{animation:pop .35s var(--ease)}
+@keyframes pop{35%{transform:scale(1.08)}}
+.flash{animation:flash .8s ease-out}
+@keyframes flash{0%{box-shadow:inset 0 0 0 2px var(--verd)}}
+.plaque{padding:18px;border-radius:var(--r-lg);border:1px solid var(--rule);background:var(--ink-1);transition:border-color .3s}
+.plaque.can{border-color:oklch(0.80 0.11 172 / .6)}
+.plaque.reset.can{border-color:oklch(0.83 0.13 82 / .6)}
+.plaque.locked{border-style:dashed;opacity:.6}
+.ph{display:flex;gap:14px;align-items:flex-start}
+.pico{flex:none;width:44px;height:44px;border-radius:var(--r-md);display:grid;place-items:center;background:var(--ink-2);border:1px solid var(--rule-2);color:var(--brass)}
+.ph h3{font-size:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.ph p{margin:3px 0 0;font-size:14.5px;color:var(--vellum-2)}
+.lv{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--vellum-3)}
+.lv:empty{display:none}
+.tag{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--verd);padding:2px 8px;border-radius:99px;background:var(--verd-wash)}
+.tag .i{width:13px;height:13px}
+.effect{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin:14px 0 10px;padding:10px 12px;border-radius:var(--r-md);background:var(--ink-in);border:1px solid var(--rule)}
+.effect small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--vellum-4)}
+.effect b{font-family:var(--serif);font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.effect div:last-child b{color:var(--verd)}
+.effect .i{color:var(--brass)}
+.req{display:flex;align-items:center;gap:10px;margin:12px 0 10px;font-size:14px;color:var(--vellum-2)}
+.req .track{flex:1}
+.note{margin:9px 0 0;font-size:13px;color:var(--vellum-4)}
+
+/* estrelas: sub-abas */
+.bank{display:flex;align-items:center;gap:18px;padding:16px 22px;border-radius:var(--r-lg);border:1px solid oklch(0.83 0.13 82 / .4);background:var(--brass-wash);flex-wrap:wrap}
+.bank .i{width:36px;height:36px;color:var(--brass);animation:twinkle 3s ease-in-out infinite}
+@keyframes twinkle{50%{transform:rotate(18deg) scale(1.1)}}
+.bank small{display:block;font-size:14px;color:var(--vellum-2)}
+.bank b{font-size:32px;line-height:1;color:var(--brass)}
+.bank p{margin:0 0 0 auto;max-width:44ch;font-size:14px;color:var(--vellum-2)}
+.bank.neb{border-color:oklch(0.76 0.11 295 / .45);background:var(--nebula-wash)}.bank.neb .i,.bank.neb b{color:var(--nebula)}
+.subtabs{display:flex;gap:6px;margin:20px 0 16px;padding:5px;border-radius:var(--r-md);background:var(--ink-in);border:1px solid var(--rule);width:max-content;max-width:100%;overflow-x:auto}
+.subtabs button{display:flex;align-items:center;gap:8px;min-height:44px;padding:8px 16px;border:0;border-radius:var(--r-sm);background:none;color:var(--vellum-3);font-weight:700;white-space:nowrap}
+.subtabs button[aria-pressed="true"]{background:var(--ink-3);color:var(--vellum)}
+.subtabs .badge{margin-left:2px}
+
+/* árvore de verdade */
+.treewrap{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+.treevp{position:relative;overflow:auto;border:1px solid var(--rule);border-radius:var(--r-lg);background:radial-gradient(ellipse at 50% 0%,oklch(0.83 0.13 82 / .06),transparent 60%),var(--ink-in);padding:8px 0;max-height:78vh}
+.treebox{position:relative;margin:0 auto}
+#treeSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.edge{fill:none;stroke:oklch(0.50 0.05 268 / .45);stroke-width:2;stroke-dasharray:5 6}
+.edge.open{stroke:oklch(0.84 0.02 260 / .55);stroke-dasharray:none}
+.edge.owned{stroke:var(--brass);stroke-dasharray:none;stroke-width:3;filter:drop-shadow(0 0 4px oklch(0.83 0.13 82 / .5))}
+.edge.can{stroke:var(--verd);stroke-dasharray:6 6;animation:flow 1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-12}}
+.tn{position:absolute;width:var(--cw);transform:translate(-50%,calc(var(--nd) / -2));display:flex;flex-direction:column;align-items:center;gap:4px;padding:0;border:0;background:none;text-align:center}
+.tn .c{width:var(--nd);height:var(--nd);border-radius:50%;display:grid;place-items:center;background:var(--ink-1);border:2px solid var(--rule-2);color:var(--vellum-3);transition:transform .25s var(--ease),box-shadow .3s,border-color .3s,background .3s}
+.tn .c .i{width:calc(var(--nd) * .44);height:calc(var(--nd) * .44)}
+.tn .n{font-size:12.5px;font-weight:700;line-height:1.2;color:var(--vellum-2);max-width:100%;padding:0 4px}
+.tn .p{display:flex;align-items:center;gap:3px;font-family:var(--serif);font-size:13px;color:var(--brass)}
+.tn .p .i{width:12px;height:12px}
+.tn:hover .c{transform:scale(1.08)}
+.tn.locked .c{border-style:dashed;opacity:.55}.tn.locked .n{color:var(--vellum-4)}
+.tn.open .c{border-color:var(--vellum-3)}
+.tn.can .c{border-color:var(--verd);color:var(--verd);box-shadow:0 0 0 4px var(--verd-wash),0 0 22px oklch(0.80 0.11 172 / .35);animation:ready 2s ease-in-out infinite}
+@keyframes ready{50%{box-shadow:0 0 0 7px var(--verd-wash),0 0 30px oklch(0.80 0.11 172 / .45)}}
+.tn.owned .c{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);box-shadow:0 0 20px oklch(0.83 0.13 82 / .35)}
+.tn.owned .p{color:var(--vellum-4)}
+.tn.sel .c{outline:2px solid var(--vellum);outline-offset:4px}
+.tn.fresh .c{animation:fresh 1.2s var(--ease)}
+@keyframes fresh{0%{transform:scale(1.5);box-shadow:0 0 60px var(--brass)}}
+.treeinfo{position:sticky;top:96px;padding:20px;border-radius:var(--r-lg);border:1px solid var(--rule);background:var(--ink-1)}
+.treeinfo .big{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--ink-2);border:2px solid var(--rule-2);color:var(--brass);margin-bottom:12px}
+.treeinfo .big .i{width:30px;height:30px}
+.treeinfo h3{font-size:22px}
+.treeinfo p{color:var(--vellum-2);margin:6px 0 12px}
+.treeinfo dl{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;margin:0 0 14px;font-size:14.5px}
+.treeinfo dt{color:var(--vellum-4);font-weight:700}.treeinfo dd{margin:0}
+.legend-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:13px;color:var(--vellum-3)}
+.legend-row span{display:flex;align-items:center;gap:6px}
+.legend-row i{width:14px;height:14px;border-radius:50%;border:2px solid var(--rule-2)}
+.legend-row .lo{background:var(--brass);border-color:var(--brass)}.legend-row .lc{border-color:var(--verd)}.legend-row .lp{border-color:var(--vellum-3)}.legend-row .ll{border-style:dashed}
+
+/* desafios */
+.chal{display:grid;grid-template-columns:56px minmax(0,1fr) 230px;gap:18px;align-items:center;padding:18px 20px;border-top:1px solid var(--rule)}
+.chal:first-child{border-top:0}
+.chal .cn{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:22px;font-weight:700;border:1px solid var(--rule-2);color:var(--vellum-2)}
+.chal.done .cn{background:var(--brass);color:var(--brass-ink);border-color:transparent}
+.chal.active{background:var(--ember-wash)}.chal.active .cn{border-color:var(--ember);color:var(--ember)}
+.chal.locked{opacity:.5}
+.chal h3{font-size:19px}
+.chal dl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin:8px 0 0;font-size:14.5px}
+.chal dt{color:var(--vellum-4);font-weight:700}.chal dd{margin:0;color:var(--vellum-2)}
+.chal dd.rule{color:var(--ember)}.chal dd.rew{color:var(--verd)}
+.chal .buy{background:var(--ember);color:oklch(0.2 0.05 32)}
+.chal .buy.armed{background:var(--vellum);color:var(--ink-0)}
+
+/* laboratório e constelações */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.lab.active{border-color:oklch(0.76 0.11 295 / .6);background:linear-gradient(180deg,var(--nebula-wash),var(--ink-1) 70%)}
+.lab .track{margin:12px 0 6px;height:10px}
+.lab .buy{background:var(--nebula);color:var(--nebula-ink)}
+.lab .buy.on{background:var(--ink-3);color:var(--nebula);border:1px solid var(--nebula)}
+.cons .buy{background:var(--nebula);color:var(--nebula-ink)}
+.cons .buy:disabled{background:var(--ink-3);color:var(--vellum-3)}
+
+/* diário */
+.chart-block{padding:20px;border-radius:var(--r-lg);border:1px solid var(--rule);background:var(--ink-1)}
+.seg{display:inline-flex;padding:4px;border-radius:var(--r-md);background:var(--ink-in);border:1px solid var(--rule)}
+.seg button{min-height:38px;padding:6px 14px;border:0;border-radius:var(--r-sm);background:none;color:var(--vellum-3);font-weight:700;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--ink-3);color:var(--vellum)}
+.chart-wrap{position:relative;margin-top:14px}
+#chart{display:block;width:100%;height:280px;cursor:crosshair}
+.tip{position:absolute;pointer-events:none;padding:8px 11px;border-radius:var(--r-sm);background:var(--ink-3);border:1px solid var(--rule-2);font-size:13px;white-space:nowrap;transform:translate(-50%,-115%)}
+.tip b{display:block;font-family:var(--serif);font-size:16px;color:var(--brass)}
+.empty{padding:40px 0;text-align:center;color:var(--vellum-3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1px;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--rule);background:var(--rule)}
+.stat{padding:14px 16px;background:var(--ink-1)}
+.stat small{display:block;font-size:13px;color:var(--vellum-3)}
+.stat b{font-size:20px;overflow-wrap:anywhere}
+.achsum{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.achsum b{font-size:20px;white-space:nowrap}.achsum .track{flex:1}
+.achs{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.ach{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:var(--r-md);border:1px solid var(--rule);background:var(--ink-1);color:var(--vellum-4)}
+.ach .i{margin-top:2px}
+.ach b{display:block;font-size:15px;color:var(--vellum-3)}
+.ach small{font-size:13.5px;line-height:1.35}
+.ach.done{border-color:oklch(0.83 0.13 82 / .4);color:var(--vellum-3)}
+.ach.done .i{color:var(--brass)}.ach.done b{color:var(--vellum)}
+
+/* ajuda */
+.steps{list-style:none;margin:0;padding:0;counter-reset:s;display:grid;gap:10px;max-width:780px}
+.steps li{counter-increment:s;position:relative;padding:15px 16px 15px 64px;border-radius:var(--r-md);border:1px solid var(--rule);background:var(--ink-1);line-height:1.55}
+.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--brass);color:var(--brass-ink);font-family:var(--serif);font-weight:700}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:980px}
+.ladder div{padding:14px;border-radius:var(--r-md);border:1px solid var(--rule);background:var(--ink-1);font-size:14.5px;color:var(--vellum-2)}
+.ladder b{display:block;font-family:var(--serif);font-size:18px;color:var(--vellum);margin-bottom:4px}
+.legend{display:grid;gap:10px;max-width:760px}
+.legend div{display:flex;align-items:center;gap:14px;color:var(--vellum-2)}
+.sw{flex:none;width:130px;padding:9px;border-radius:var(--r-sm);text-align:center;font-size:14px;font-weight:700}
+.sw.g{background:var(--verd);color:var(--verd-ink)}.sw.k{background:var(--ink-3);color:var(--vellum-3);font-weight:400}.sw.b{background:var(--brass);color:var(--brass-ink)}.sw.d{border:1px dashed var(--rule-2);color:var(--vellum-4)}.sw.r{border:1px solid var(--ember);color:var(--ember)}.sw.n{background:var(--nebula);color:var(--nebula-ink)}
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.gloss div{padding:12px 14px;border-radius:var(--r-md);border:1px solid var(--rule);background:var(--ink-1);color:var(--vellum-2);font-size:15px}
+.gloss b{color:var(--vellum)}
+.reset{margin-top:28px;max-width:320px}
+
+/* efeitos */
+.fx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.float{position:absolute;transform:translate(-50%,-50%);font-family:var(--serif);font-weight:700;font-size:16px;white-space:nowrap;animation:floatUp 1.2s var(--ease) forwards}
+.float.gain{color:var(--verd);font-size:14px}.float.buy{color:var(--vellum)}.float.star{color:var(--brass);font-size:30px}.float.neb{color:var(--nebula);font-size:34px}
+@keyframes floatUp{0%{opacity:0;transform:translate(-50%,-20%) scale(.7)}15%{opacity:1;transform:translate(-50%,-60%)}100%{opacity:0;transform:translate(calc(-50% + var(--drift,0px)),-240%)}}
+.dot{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:var(--c);animation:burst .7s var(--ease) forwards}
+@keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+.shock{position:fixed;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:3px solid var(--brass);opacity:0;pointer-events:none;z-index:59}
+.shock.go{animation:shock 1.1s var(--ease)}
+.shock.neb{border-color:var(--nebula)}
+@keyframes shock{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(45)}}
+.flashScreen{position:fixed;inset:0;background:radial-gradient(circle at 50% 50%,oklch(0.95 0.06 85 / .9),oklch(0.83 0.13 82 / .3) 40%,transparent 70%);opacity:0;pointer-events:none;z-index:58}
+.flashScreen.neb{background:radial-gradient(circle at 50% 50%,oklch(0.97 0.03 295 / .95),oklch(0.76 0.11 295 / .45) 40%,transparent 75%)}
+.flashScreen.go{animation:fade .9s ease-out}
+@keyframes fade{0%{opacity:1}100%{opacity:0}}
+.hint{animation:hint 1.2s ease 2}
+@keyframes hint{50%{box-shadow:0 0 0 3px var(--brass),0 0 40px oklch(0.83 0.13 82 / .5)}}
+.toasts{position:fixed;bottom:16px;right:16px;z-index:70;display:flex;flex-direction:column;gap:8px;width:min(380px,calc(100% - 32px));pointer-events:none}
+.toast{display:flex;gap:12px;align-items:flex-start;padding:13px 16px;border-radius:var(--r-md);background:var(--ink-3);border:1px solid var(--rule-2);box-shadow:0 14px 40px oklch(0 0 0 / .45);animation:toastIn .4s var(--ease)}
+.toast .i{color:var(--brass);margin-top:2px}
+.toast b{display:block;font-size:15px}.toast small{font-size:14px;color:var(--vellum-2)}
+.toast.out{animation:toastOut .3s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(24px)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(16px)}}
+
+/* responsivo */
+@media(max-width:1240px){
+ .gen{grid-template-columns:48px minmax(0,1fr) 110px 190px;grid-template-areas:"i t n b" "i o o b"}
+ .gico{grid-area:i;width:48px;height:48px}.gen .gid{grid-area:t}.gnum{grid-area:n}.gout{grid-area:o}.gen .buy{grid-area:b}
+ .gout b{display:inline;margin-right:8px}
+ .treewrap{grid-template-columns:minmax(0,1fr)}
+ .treeinfo{position:static}
+}
+@media(max-width:1060px){.home,.prod{grid-template-columns:minmax(0,1fr)}.prod-side{position:static}.observatory{min-height:440px}.ladder{grid-template-columns:1fr 1fr}}
+@media(max-width:760px){
+ .app{display:block}
+ .rail{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;z-index:30;flex-direction:row;gap:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));border-right:0;border-top:1px solid var(--rule);background:oklch(0.15 0.03 268 / .97)}
+ .brand,.rail-foot{display:none}
+ .nav{flex:1;flex-direction:column;gap:3px;padding:8px 2px;font-size:11px;text-align:center;min-height:56px}
+ .nav .badge{position:absolute;top:4px;left:calc(50% + 6px);margin:0;min-width:18px;height:18px;font-size:11px;padding:0 5px}
+ .nav .badge.dot{min-width:9px;height:9px}
+ .hud{gap:12px;padding:10px 16px;flex-wrap:wrap}
+ .hud .mbrand{display:grid}
+ .hud-stat b{font-size:18px}.hud-stat .up{display:block;margin:0;font-size:12.5px}
+ .hud-rb{order:5;flex-basis:100%;max-width:none}
+ .event{order:4}
+ .coach{margin:12px 16px 0}
+ .views{padding:16px 16px 110px}
+ .vh h2{font-size:25px}
+ .gen{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"i t n" "o o o" "b b b";gap:10px 12px;padding:14px}
+ .gico{width:44px;height:44px}
+ .trade{grid-template-columns:1fr}
+ .chal{grid-template-columns:44px minmax(0,1fr);gap:12px}.chal .cn{width:44px;height:44px;font-size:18px}.chal .buy{grid-column:1/-1}
+ .bank p{margin:0}
+ .ladder{grid-template-columns:1fr}
+ .toasts{bottom:88px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+ <symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.5"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/><circle cx="20" cy="8.4" r="1.3"/></symbol>
+ <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+ <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></symbol>
+ <symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></symbol>
+ <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+ <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol>
+ <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M8 16H3v5"/></symbol>
+ <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+ <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+ <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+ <symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></symbol>
+ <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.7V17c0 .6-.5 1-1 1.2C7.9 18.8 7 20.2 7 22M14 14.7V17c0 .6.5 1 1 1.2 1.1.6 2 2 2 3.8M18 2H6v7a6 6 0 0 0 12 0z"/></symbol>
+ <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9M12 12C12 8 9 6 5 6c0 4 3 6 7 6zM12 14c0-4 3-6 7-6 0 4-3 6-7 6z"/></symbol>
+ <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="7.5"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></symbol>
+ <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M8 21h12a2 2 0 0 0 2-2v-2H10v2a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v3h4M19 17V5a2 2 0 0 0-2-2H4"/></symbol>
+ <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1zM12 15l-3-3a22 22 0 0 1 2-4A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2zM9 12H4s.6-3 2-4c1.6-1.1 5 0 5 0M12 15v5s3-.6 4-2c1.1-1.6 0-5 0-5"/></symbol>
+ <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></symbol>
+ <symbol id="i-factory" viewBox="0 0 24 24"><path d="M2 20h20M4 20V10l5 3v-3l5 3V6h6v14M17 10h.01M17 14h.01"/></symbol>
+ <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4 20a1 1 0 0 0 .9 1.5h14.2A1 1 0 0 0 20 20l-6-11V3M7 15h10"/></symbol>
+ <symbol id="i-comet" viewBox="0 0 24 24"><circle cx="17" cy="7" r="3"/><path d="M14.9 9.1 4 20M12.5 5.5 6 12M18.5 11.5 12 18"/></symbol>
+ <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M19 3v4M17 5h4M5 17v4M3 19h4"/></symbol>
+ <symbol id="i-lamp" viewBox="0 0 24 24"><path d="M9 21h6M10 17.5h4M12 3a6 6 0 0 0-4 10.5c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0 0 12 3z"/></symbol>
+ <symbol id="i-spyglass" viewBox="0 0 24 24"><path d="M3 15l13-7 2 3.5-13 7z"/><path d="M16 8l3-1.6 2 3.5-3 1.6M9 16.5 7 22M11 15.5l2 6.5"/></symbol>
+ <symbol id="i-telescope" viewBox="0 0 24 24"><path d="M4.5 13.5 17 6l2.5 4.3L7 17.8z"/><path d="M12 15v7M8 22h8M17 6l1.5-1 2.5 4.3-1.5 1"/></symbol>
+ <symbol id="i-dome" viewBox="0 0 24 24"><path d="M3 21h18M5 21v-6a7 7 0 0 1 14 0v6M12 8V5M13 8.2 16 4"/></symbol>
+ <symbol id="i-dish" viewBox="0 0 24 24"><path d="M5 6a10 10 0 0 0 13 13z"/><path d="M11.5 12.5 18 6M9 21h8M13 16v5"/><circle cx="18.5" cy="5.5" r="1"/></symbol>
+ <symbol id="i-satellite" viewBox="0 0 24 24"><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 12H3M15 12h6M3 8v8M21 8v8M12 9V5M10 3h4"/></symbol>
+ <symbol id="i-station" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9" stroke-dasharray="3 3"/><path d="M12 3v6M12 15v6M3 12h6M15 12h6"/></symbol>
+ <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+ <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 6-6"/></symbol>
+ <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+ <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+ <symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M6 2h12M6 22h12M7 2c0 6 10 6 10 10S7 16 7 22M17 2c0 6-10 6-10 10s10 4 10 10"/></symbol>
+ <symbol id="i-hammer" viewBox="0 0 24 24"><path d="M14 3l7 7-3 3-7-7zM11 6 3 14l4 4 8-8"/></symbol>
+ <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5z"/><path d="M2 13l10 5 10-5"/></symbol>
+ <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 8l-2.5 5.5L8 16l2.5-5.5z"/></symbol>
+ <symbol id="i-door" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+ <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></symbol>
+ <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+ <symbol id="i-galaxy" viewBox="0 0 24 24"><path d="M12 12c0-3 3-5 6-4M12 12c3 0 5 3 4 6M12 12c0 3-3 5-6 4M12 12c-3 0-5-3-4-6"/><circle cx="12" cy="12" r="1.5"/></symbol>
+ <symbol id="i-nova" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5M4.2 4.2l3.5 3.5M16.3 16.3l3.5 3.5M4.2 19.8l3.5-3.5M16.3 7.7l3.5-3.5"/></symbol>
+</svg>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="app" id="game">
+ <nav class="rail" aria-label="Seções do jogo">
+   <div class="brand"><span class="seal"><svg class="i"><use href="#i-orbit"/></svg></span><span><b>Ascensão Infinita</b><small>observatório incremental</small></span></div>
+   <button class="nav" data-view="home" type="button"><svg class="i"><use href="#i-orbit"/></svg>Observatório</button>
+   <button class="nav" data-view="prod" type="button"><svg class="i"><use href="#i-sun"/></svg>Produção<span class="badge" id="b-prod" hidden></span></button>
+   <button class="nav" data-view="stars" type="button"><svg class="i"><use href="#i-star"/></svg>Estrelas<span class="badge" id="b-stars" hidden></span></button>
+   <button class="nav" data-view="nova" type="button" id="nav-nova"><svg class="i"><use href="#i-nova"/></svg>Supernova<span class="badge neb" id="b-nova" hidden></span></button>
+   <button class="nav" data-view="log" type="button"><svg class="i"><use href="#i-book"/></svg>Diário<span class="badge dot" id="b-log" hidden></span></button>
+   <div class="rail-foot">
+     <button class="nav" data-view="help" type="button"><svg class="i"><use href="#i-help"/></svg>Como jogar</button>
+     <span class="status" id="saveStatus">Salvo automaticamente</span>
+   </div>
+ </nav>
+ <div class="main">
+   <header class="hud">
+     <span class="seal mbrand"><svg class="i"><use href="#i-orbit"/></svg></span>
+     <div class="hud-stat"><small>Pontos</small><b class="num" id="hPoints">10</b><span class="up" id="hRate">+0/s</span></div>
+     <div class="hud-stat"><small>Estrelas</small><b class="num brass" id="hStars">0</b></div>
+     <div class="hud-stat" id="hDustBox" hidden><small>Poeira</small><b class="num nebula" id="hDust">0</b></div>
+     <div class="event" id="hEvent"><svg class="i"><use href="#i-comet"/></svg><span id="hEventT">Céu calmo</span></div>
+     <div class="hud-rb"><small id="hRbLabel">Até renascer</small><div class="track"><i id="hRbFill"></i></div></div>
+     <button class="iconbtn" id="helpBtn" type="button" aria-label="Como jogar"><svg class="i"><use href="#i-help"/></svg></button>
+   </header>
+   <button class="coach" id="coach" type="button"><span class="ci"><svg class="i"><use href="#i-compass"/></svg></span><span><small>PRÓXIMO PASSO</small><span class="ct" id="coachText">Compre uma Faísca na Produção.</span></span><svg class="i go"><use href="#i-arrow"/></svg></button>
+
+   <main class="views">
+     <!-- OBSERVATÓRIO -->
+     <section class="view home" id="view-home">
+       <div class="observatory">
+         <canvas id="orrery" aria-hidden="true"></canvas>
+         <div class="readout"><small>Seus pontos</small><output id="points" class="counter">10</output><span id="rate" class="rate">+0 por segundo</span></div>
+         <p class="orrery-note">Cada anel é um tipo de gerador. Cada ponto girando é um gerador que você comprou.</p>
+       </div>
+       <div class="side">
+         <section class="block" id="rebirthBlock">
+           <div class="bh"><h3>Renascer</h3><span class="meta">a partir de 1e40 pontos</span></div>
+           <div class="trade">
+             <div class="lose"><b><svg class="i"><use href="#i-x"/></svg>Você perde</b>Pontos, geradores, Velocidade, Expansões e Galáxias.</div>
+             <div class="win"><b><svg class="i"><use href="#i-check"/></svg>Você ganha</b><span id="rbGain">Estrelas, que deixam tudo mais forte para sempre.</span></div>
+           </div>
+           <div class="track"><i id="rbFill"></i></div>
+           <p class="small" id="rbText"></p>
+           <button class="cta" id="rebirthBtn" type="button" disabled><svg class="i"><use href="#i-refresh"/></svg><span id="rbBtnT">Ainda não dá para renascer</span></button>
+         </section>
+         <section class="block" id="challengeBlock" hidden>
+           <div class="bh"><h3 id="cbName">Desafio</h3><span class="meta ember">Desafio ativo</span></div>
+           <p class="small" id="cbRule"></p>
+           <div class="track ember"><i id="cbFill"></i></div>
+           <p class="small" id="cbText"></p>
+           <button class="cta" id="cbWin" type="button" disabled><svg class="i"><use href="#i-trophy"/></svg><span>Chegue na meta para vencer</span></button>
+           <button class="cta danger" id="giveUp" type="button" style="margin-top:10px"><svg class="i"><use href="#i-door"/></svg><span>Desistir do desafio</span></button>
+         </section>
+         <section class="block">
+           <div class="bh"><h3>Onde você está</h3></div>
+           <div class="steps-mini" id="ladder"></div>
+         </section>
+         <section class="block">
+           <div class="bh"><h3>Seu ganho, explicado</h3></div>
+           <p class="small" style="margin:0">Tudo que multiplica seus pontos por segundo:</p>
+           <ol class="ledger" id="breakdown"></ol>
+         </section>
+       </div>
+     </section>
+
+     <!-- PRODUÇÃO -->
+     <section class="view prod" id="view-prod" hidden>
+       <div>
+         <header class="vh"><h2>Geradores em cascata</h2><p class="lead">A <b>Faísca</b> produz pontos. Cada gerador acima produz o de baixo: a <b>Lamparina</b> produz Faíscas, a <b>Luneta</b> produz Lamparinas, e assim por diante. A cada <b>10 comprados</b> de um gerador, ele produz <b>×2</b>. <span class="verd"><b>Botão verde</b></span> = dá para comprar.</p></header>
+         <div class="gens" id="genList"></div>
+       </div>
+       <aside class="prod-side" id="prodSide"></aside>
+     </section>
+
+     <!-- ESTRELAS -->
+     <section class="view" id="view-stars" hidden>
+       <header class="vh"><h2>Estrelas</h2><p class="lead">Você ganha <b class="brass">Estrelas</b> ao renascer. Cada Estrela que você já ganhou deixa tudo mais forte, e você ainda pode gastá-las aqui. Gastar não tira o bônus.</p></header>
+       <div class="bank"><svg class="i"><use href="#i-star"/></svg><div><small>Para gastar</small><b class="num" id="starInfo">0</b></div><p id="starBonusTxt"></p></div>
+       <div class="subtabs" role="tablist">
+         <button type="button" data-sub="tree" aria-pressed="true"><svg class="i"><use href="#i-sprout"/></svg>Árvore<span class="badge" id="b-tree" hidden></span></button>
+         <button type="button" data-sub="chal" aria-pressed="false"><svg class="i"><use href="#i-flag"/></svg>Desafios<span class="badge" id="b-chal" hidden></span></button>
+         <button type="button" data-sub="lab" aria-pressed="false"><svg class="i"><use href="#i-flask"/></svg>Laboratório</button>
+       </div>
+       <div id="sub-tree">
+         <div class="treewrap">
+           <div>
+             <div class="treevp" id="treeVP"><div class="treebox" id="treeBox"><svg id="treeSvg" aria-hidden="true"></svg></div></div>
+             <div class="legend-row"><span><i class="lo"></i>Comprada</span><span><i class="lc"></i>Dá para comprar</span><span><i class="lp"></i>Liberada, falta Estrela</span><span><i class="ll"></i>Bloqueada</span></div>
+           </div>
+           <aside class="treeinfo" id="treeInfo">
+             <div class="big" id="tiIcon"></div>
+             <h3 id="tiName"></h3>
+             <p id="tiDesc"></p>
+             <dl><dt>Preço</dt><dd id="tiCost"></dd><dt>Precisa de</dt><dd id="tiNeeds"></dd></dl>
+             <button class="buy" id="tiBuy" type="button"></button>
+           </aside>
+         </div>
+       </div>
+       <div id="sub-chal" hidden>
+         <p class="lead" style="margin:0 0 14px">Um desafio é uma vida com uma <b>regra ruim</b>. Chegue na meta de pontos para vencer e ganhar um <b class="verd">prêmio para sempre</b>. Ao vencer você também renasce e ganha Estrelas. Vença um para liberar o próximo.</p>
+         <p class="lockmsg" id="chalLock"><svg class="i"><use href="#i-lock"/></svg>Compre “Portal dos Desafios” na árvore para liberar.</p>
+         <div class="gens" id="chalList"></div>
+       </div>
+       <div id="sub-lab" hidden>
+         <p class="lead" style="margin:0 0 14px">Pesquisas melhoram <b>sozinhas com o tempo real</b>, até com o jogo fechado. Escolha o que pesquisar; quando um nível termina, o próximo começa sozinho.</p>
+         <p class="lockmsg" id="labLock"><svg class="i"><use href="#i-lock"/></svg>Compre “Laboratório” na árvore para liberar.</p>
+         <p class="small" id="labSlots"></p>
+         <div class="cards" id="labList"></div>
+       </div>
+     </section>
+
+     <!-- SUPERNOVA -->
+     <section class="view" id="view-nova" hidden>
+       <header class="vh"><h2>Supernova</h2><p class="lead">Quando seus pontos chegam no <b>limite do universo (1e300)</b>, você pode explodir tudo numa Supernova. Ela apaga Estrelas e a árvore (os robôs ficam), mas dá <b class="nebula">Poeira Estelar</b>: cada Poeira juntada multiplica todo o ganho, e você compra Constelações que nunca somem.</p></header>
+       <p class="lockmsg" id="novaLock"><svg class="i"><use href="#i-lock"/></svg>Compre “Coração da Estrela”, o último galho da árvore, para liberar.</p>
+       <div class="bank neb"><svg class="i"><use href="#i-nova"/></svg><div><small>Poeira para gastar</small><b class="num" id="dustInfo">0</b></div><p id="dustTxt"></p></div>
+       <section class="block" style="margin-top:16px">
+         <div class="bh"><h3>Explodir</h3><span class="meta" id="snCount"></span></div>
+         <div class="track neb"><i id="snFill"></i></div>
+         <p class="small" id="snText"></p>
+         <button class="cta" id="snBtn" type="button" disabled><svg class="i"><use href="#i-nova"/></svg><span id="snBtnT">Ainda não</span></button>
+       </section>
+       <div class="kicker">Constelações</div>
+       <div class="cards" id="consList"></div>
+     </section>
+
+     <!-- DIÁRIO -->
+     <section class="view" id="view-log" hidden>
+       <header class="vh"><h2>Diário de bordo</h2><p class="lead">Seu progresso registrado a cada 10 segundos (última hora).</p></header>
+       <div class="chart-block">
+         <div class="bh"><h3 id="chartTitle">Pontos ao longo do tempo</h3><div class="seg" role="group" aria-label="O que mostrar"><button type="button" data-mode="p" aria-pressed="true">Pontos</button><button type="button" data-mode="g" aria-pressed="false">Ganho por segundo</button></div></div>
+         <p class="small" style="margin:0">Escala logarítmica: cada linha é muitas vezes maior que a de baixo.</p>
+         <div class="chart-wrap"><canvas id="chart" tabindex="0" role="img" aria-label="Gráfico do histórico"></canvas><div class="tip" id="tip" hidden></div><p class="empty" id="chartEmpty" hidden>Ainda coletando dados. Volte em 1 minuto.</p></div>
+       </div>
+       <div class="kicker">Estatísticas</div>
+       <div class="stats" id="stats"></div>
+       <div class="kicker">Conquistas</div>
+       <div class="achsum"><b class="num" id="achSum">0 de 0</b><div class="track"><i id="achFill"></i></div></div>
+       <div class="achs" id="achList"></div>
+     </section>
+
+     <!-- AJUDA -->
+     <section class="view" id="view-help" hidden>
+       <header class="vh"><h2>Como jogar</h2><p class="lead">Aqui ninguém precisa clicar sem parar: tudo cresce sozinho. Você só decide o que comprar. Siga a caixa <b class="brass">Próximo passo</b>: ela sempre diz o que fazer.</p></header>
+       <ol class="steps">
+         <li>Na <b>Produção</b>, compre uma <b>Faísca</b>. Ela produz pontos sozinha.</li>
+         <li>Compre <b>Lamparinas</b>: elas produzem Faíscas. Cada gerador produz o de baixo, então tudo acelera sozinho.</li>
+         <li>Compre <b>Velocidade</b>: deixa todos os geradores mais rápidos.</li>
+         <li>Quando tiver 20 do maior gerador, faça uma <b>Expansão</b>: recomeça a produção, mas libera um gerador novo e dá ×2 em tudo.</li>
+         <li>Com <b>1e40 pontos</b> você pode <b>Renascer</b> e ganhar <b class="brass">Estrelas</b>. Use-as na <b>árvore</b>: robôs, bônus, desafios e laboratório.</li>
+         <li>No fim da árvore, chegue no limite do universo e faça uma <b class="nebula">Supernova</b>.</li>
+       </ol>
+       <div class="kicker">Os 4 jeitos de recomeçar (do menor para o maior)</div>
+       <div class="ladder">
+         <div><b>Expansão</b>Apaga pontos e geradores. Dá ×2 em tudo e libera gerador novo.</div>
+         <div><b>Galáxia</b>Apaga também as Expansões. Deixa a Velocidade mais forte para sempre.</div>
+         <div><b>Renascer</b>Apaga tudo da produção. Dá Estrelas, que nunca somem (até a Supernova).</div>
+         <div><b>Supernova</b>Apaga Estrelas e árvore. Dá Poeira Estelar e Constelações eternas.</div>
+       </div>
+       <div class="kicker">O que as cores dizem</div>
+       <div class="legend">
+         <div><span class="sw g">Comprar</span>Dá para comprar agora.</div>
+         <div><span class="sw k">Faltam 50</span>Ainda falta, espere um pouco.</div>
+         <div><span class="sw b">Renascer</span>Dourado: Estrelas e renascimento.</div>
+         <div><span class="sw n">Supernova</span>Roxo: Supernova, Poeira e pesquisas.</div>
+         <div><span class="sw r">Desafio</span>Vermelho: algo que você perde ou uma regra difícil.</div>
+         <div><span class="sw d">Bloqueado</span>Precisa comprar outra coisa antes.</div>
+       </div>
+       <div class="kicker">Palavras do jogo</div>
+       <div class="gloss">
+         <div><b>Pontos</b>: o dinheiro do jogo.</div>
+         <div><b>/s</b>: quanto você ganha por segundo.</div>
+         <div><b>Cascata</b>: cada gerador produz o gerador de baixo.</div>
+         <div><b>Vida</b>: o tempo entre um renascimento e outro.</div>
+         <div><b>×2</b>: dobra. Se ganhava 10, passa a ganhar 20.</div>
+         <div><b>1,5e40</b>: 1,5 seguido de 40 zeros. Número gigante!</div>
+         <div><b>Robô</b>: compra ou faz algo sozinho para você.</div>
+       </div>
+       <button class="cta danger reset" id="reset" type="button"><svg class="i"><use href="#i-trash"/></svg><span>Apagar todo o progresso</span></button>
+     </section>
+   </main>
+ </div>
+</div>
+<div id="flashScreen" class="flashScreen" aria-hidden="true"></div>
+<div id="shock" class="shock" aria-hidden="true"></div>
+<div id="fx" class="fx" aria-hidden="true"></div>
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script>
+/*ECON*/
+</script>
+<script>
+(()=>{'use strict';
+const E=ECON,$=id=>document.getElementById(id),root=$('game');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const KEY='ascensao-infinita-v7';
+const C={brass:'#e8c063',verd:'#69d6b6',vellum:'#f3ecdc',rule:'rgba(110,120,180,.28)',ember:'#ec7a5c',nebula:'#b4a5f2',ink:'#141830'};
+const ico=n=>'<svg class="i"><use href="#i-'+n+'"/></svg>';
+
+/* ---------- números ---------- */
+function fmt(n){if(!Number.isFinite(n))return '∞';if(n===0)return '0';if(Math.abs(n)<1000)return n.toLocaleString('pt-BR',{maximumFractionDigits:n<10?2:n<100?1:0});const i=Math.floor(Math.log10(n)/3),L=['',' mil',' milhões',' bilhões',' trilhões',' quadrilhões',' quintilhões'];if(i<L.length)return (n/1000**i).toLocaleString('pt-BR',{maximumFractionDigits:2})+L[i];return n.toExponential(2).replace('.',',').replace('e+','e')}
+const pts=n=>fmt(n)+(n===1?' ponto':' pontos');
+const stars=n=>fmt(n)+(n===1?' Estrela':' Estrelas');
+function fmtTime(sec){if(!Number.isFinite(sec)||sec>3e9)return 'muito tempo';if(sec<1)return 'menos de 1 s';if(sec<60)return Math.ceil(sec)+' s';if(sec<3600)return Math.ceil(sec/60)+' min';if(sec<86400)return (sec/3600).toFixed(1).replace('.',',')+' h';return fmt(Math.ceil(sec/86400))+' dias'}
+function fmtClock(sec){sec=Math.floor(sec);const h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=sec%60;return h?h+' h '+m+' min':m?m+' min '+s+' s':s+' s'}
+const setText=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
+const logp=(p,goal)=>Math.min(1,Math.log10(Math.max(1,p))/Math.log10(goal));
+
+/* ---------- estado ---------- */
+function clean(v){const s=E.fresh();if(!v||typeof v!=='object'||v.v!==7)return s;
+ const num=(x,min,max,d=min)=>{x=Number(x);return Number.isFinite(x)?Math.max(min,Math.min(max,x)):d};
+ s.points=num(v.points,0,E.CAP,10);for(const k of ['amt','bought'])if(Array.isArray(v[k]))s[k]=E.GENS.map((_,i)=>num(v[k][i],0,E.CAP));
+ s.bought=s.bought.map(Math.floor);
+ for(const k of ['tick','exp','gal','rebirths','supernovas','meteors'])s[k]=Math.floor(num(v[k],0,1e9));
+ for(const k of ['stars','starsTotal','starsLife','dust','dustTotal','total','best','bestRate','played','runTime','fastest'])s[k]=num(v[k],0,E.CAP);
+ for(const k of Object.keys(s.perm))s.perm[k]=!!v.perm?.[k];
+ for(const c of E.CONS)s.cons[c.id]=Math.floor(num(v.cons?.[c.id],0,c.max));
+ for(const r of E.LAB){s.lab.lv[r.id]=Math.floor(num(v.lab?.lv?.[r.id],0,1e4));s.lab.prog[r.id]=num(v.lab?.prog?.[r.id],0,1e12)}
+ s.lab.active=Array.isArray(v.lab?.active)?v.lab.active.filter(id=>E.LAB.some(r=>r.id===id)):[];
+ const chIds=new Set(E.CH.map(c=>c.id));s.chDone=Array.isArray(v.chDone)?[...new Set(v.chDone.filter(x=>chIds.has(x)))]:[];s.chActive=chIds.has(v.chActive)?v.chActive:null;
+ const achIds=new Set(ACH.map(a=>a.id));s.ach=Array.isArray(v.ach)?[...new Set(v.ach.filter(x=>achIds.has(x)))]:[];
+ if(Array.isArray(v.hist))s.hist=v.hist.filter(h=>h&&Number.isFinite(h.t)&&Number.isFinite(h.p)&&Number.isFinite(h.g)).slice(-360);
+ s.meteorNext=num(v.meteorNext,0,Date.now()+1e7,Date.now()+300000);s.meteorUntil=num(v.meteorUntil,0,Date.now()+60000,0);
+ s.seenHelp=!!v.seenHelp;s.lastTick=num(v.lastTick,0,Date.now(),Date.now());return s}
+
+/* ---------- conquistas ---------- */
+const A=(id,icon,name,desc,test)=>({id,icon,name,desc,test});
+const labTotal=s=>Object.values(s.lab.lv).reduce((a,b)=>a+b,0),consTotal=s=>Object.values(s.cons).reduce((a,b)=>a+b,0);
+const ACH=[
+ A('p3','sparkles','Primeira luz','Junte mil pontos',s=>s.best>=1e3),
+ A('p10','sparkles','Dez dígitos','Junte 1e10 pontos',s=>s.best>=1e10),
+ A('p25','sparkles','Astronômico','Junte 1e25 pontos',s=>s.best>=1e25),
+ A('p40','sparkles','Pronto para renascer','Junte 1e40 pontos',s=>s.best>=1e40),
+ A('p60','sparkles','Além dos nomes','Junte 1e60 pontos',s=>s.best>=1e60),
+ A('p100','sparkles','Googol','Junte 1e100 pontos',s=>s.best>=1e100),
+ A('p150','sparkles','Galáctico','Junte 1e150 pontos',s=>s.best>=1e150),
+ A('p200','sparkles','Cósmico','Junte 1e200 pontos',s=>s.best>=1e200),
+ A('p300','nova','Limite do universo','Chegue em 1e300 pontos',s=>s.best>=1e300),
+ A('e1','expand','Primeira Expansão','Faça 1 Expansão',s=>s.exp>=1||s.gal>=1||s.rebirths>=1),
+ A('e4','expand','Frota completa','Libere os 8 geradores',s=>s.exp>=4||s.gal>=1),
+ A('e10','expand','Expansionista','Tenha 10 Expansões na mesma vida',s=>s.exp>=10),
+ A('g1','galaxy','Via Láctea','Faça 1 Galáxia',s=>s.gal>=1||s.rebirths>=1&&s.perm.galaxyCheap),
+ A('g3','galaxy','Aglomerado','Tenha 3 Galáxias na mesma vida',s=>s.gal>=3),
+ A('t25','bolt','Rapidinho','Compre 25 Velocidades na mesma vida',s=>s.tick>=25),
+ A('t100','bolt','Supersônico','Compre 100 Velocidades na mesma vida',s=>s.tick>=100),
+ A('t250','bolt','Velocidade da luz','Compre 250 Velocidades na mesma vida',s=>s.tick>=250),
+ A('st1','station','Cidade no céu','Compre 1 Estação Orbital',s=>s.bought[7]>=1),
+ A('f100','sparkles','Fogueira','Compre 100 Faíscas na mesma vida',s=>s.bought[0]>=100),
+ A('r1','refresh','Renascido','Renasça 1 vez',s=>s.rebirths>=1||s.supernovas>=1),
+ A('r10','refresh','Fênix','Renasça 10 vezes',s=>s.rebirths>=10||s.supernovas>=1),
+ A('r50','refresh','Ciclo eterno','Renasça 50 vezes',s=>s.rebirths>=50),
+ A('r200','refresh','Imortal','Renasça 200 vezes',s=>s.rebirths>=200),
+ A('fast5','clock','Apressado','Renasça em menos de 5 minutos',s=>s.fastest>0&&s.fastest<300),
+ A('fast1','clock','Relâmpago','Renasça em menos de 1 minuto',s=>s.fastest>0&&s.fastest<60),
+ A('s100','star','Constelado','Junte 100 Estrelas',s=>s.starsTotal>=100||s.supernovas>=1),
+ A('s1e4','star','Céu estrelado','Junte 10 mil Estrelas',s=>s.starsTotal>=1e4),
+ A('s1e6','star','Via de luz','Junte 1 milhão de Estrelas',s=>s.starsTotal>=1e6),
+ A('robot','cpu','Preguiça inteligente','Compre o primeiro robô',s=>s.perm.auto1),
+ A('robots','factory','Fábrica automática','Tenha todos os robôs',s=>E.ROBOTS.every(k=>s.perm[k])),
+ A('tree','sprout','Árvore completa','Compre a árvore inteira',s=>E.TREE.every(t=>s.perm[t.k])),
+ A('c1','flag','Desafiante','Vença 1 desafio',s=>s.chDone.length>=1),
+ A('c4','flag','Veterano','Vença 4 desafios',s=>s.chDone.length>=4),
+ A('c8','flag','Invencível','Vença os 8 desafios',s=>s.chDone.length>=8),
+ A('l10','flask','Cientista','Some 10 níveis de pesquisa',s=>labTotal(s)>=10),
+ A('l50','flask','Gênio','Some 50 níveis de pesquisa',s=>labTotal(s)>=50),
+ A('sn1','nova','Supernova!','Faça 1 Supernova',s=>s.supernovas>=1),
+ A('sn10','nova','Explosivo','Faça 10 Supernovas',s=>s.supernovas>=10),
+ A('sn50','nova','Fábrica de estrelas','Faça 50 Supernovas',s=>s.supernovas>=50),
+ A('cons10','scroll','Cartógrafo','Some 10 níveis de Constelações',s=>consTotal(s)>=10),
+ A('d1000','comet','Mar de poeira','Junte 1.000 de Poeira Estelar',s=>s.dustTotal>=1000),
+ A('met1','comet','Olhe para cima','Veja uma chuva de meteoros',s=>s.meteors>=1),
+ A('met25','comet','Caçador de meteoros','Veja 25 chuvas de meteoros',s=>s.meteors>=25),
+ A('off','moon','Boa noite','Compre Sono Produtivo',s=>s.perm.off1),
+ A('h1','clock','Dedicado','Jogue por 1 hora',s=>s.played>=3600),
+ A('h10','clock','Astrônomo de verdade','Jogue por 10 horas',s=>s.played>=36000)
+];
+
+let S=E.fresh();let oldVersion=false;
+try{const raw=localStorage.getItem(KEY);if(raw)S=clean(JSON.parse(raw));else oldVersion=!!localStorage.getItem('ascensao-infinita-v6');}catch(e){}
+function save(){const st=$('saveStatus');S.lastTick=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S));setText(st,'Salvo automaticamente');replay(st,'saved')}catch(e){setText(st,'Não foi possível salvar')}}
+
+/* ---------- efeitos ---------- */
+const fx=$('fx');
+function replay(el,cls){if(!el)return;el.classList.remove(cls);void el.offsetWidth;el.classList.add(cls)}
+function center(el){const r=el.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height,r}}
+function floatText(text,x,y,cls){if(reduce)return;while(fx.childElementCount>60)fx.firstElementChild.remove();const t=document.createElement('span');t.className='float '+cls;t.textContent=text;t.style.left=x+'px';t.style.top=y+'px';t.style.setProperty('--drift',(Math.random()*40-20)+'px');t.addEventListener('animationend',()=>t.remove(),{once:true});fx.append(t)}
+function burst(x,y,count,colors){if(reduce)return;for(let i=0;i<count;i++){const d=document.createElement('i'),a=Math.random()*Math.PI*2,r=30+Math.random()*70;d.className='dot';d.style.left=x+'px';d.style.top=y+'px';d.style.setProperty('--dx',Math.cos(a)*r+'px');d.style.setProperty('--dy',Math.sin(a)*r+'px');d.style.setProperty('--c',colors[i%colors.length]);d.addEventListener('animationend',()=>d.remove(),{once:true});fx.append(d)}}
+function fxAt(el,text,colors=[C.verd,C.brass,C.vellum]){if(!el)return;const p=center(el);floatText(text,p.x,p.y-8,'buy');burst(p.x,p.y,12,colors);replay(el,'pop');replay(el.closest('.gen,.plaque,.chal'),'flash')}
+function bigFx(kind,text){const el=current==='home'?$('points'):$('hPoints'),p=center(el),sh=$('shock'),fl=$('flashScreen');sh.classList.toggle('neb',kind==='nova');fl.classList.toggle('neb',kind==='nova');sh.style.left=p.x+'px';sh.style.top=p.y+'px';replay(sh,'go');replay(fl,'go');replay($('points'),'reborn');warp=1;floatText(text,p.x,p.y,kind==='nova'?'neb':'star');burst(p.x,p.y,30,kind==='nova'?[C.nebula,C.vellum,C.brass]:[C.brass,C.vellum,C.verd])}
+function toast(icon,title,sub){const box=$('toasts'),t=document.createElement('div');t.className='toast';t.innerHTML=ico(icon)+'<div><b></b><small></small></div>';t.querySelector('b').textContent=title;t.querySelector('small').textContent=sub||'';box.append(t);while(box.childElementCount>3)box.firstElementChild.remove();setTimeout(()=>{t.classList.add('out');setTimeout(()=>t.remove(),300)},4200)}
+
+/* céu */
+const sky=$('sky'),sctx=sky.getContext('2d');let bg=[],links=[],streaks=[],warp=0,SW=0,SH=0;
+function resizeSky(){const dpr=Math.min(2,devicePixelRatio||1);SW=innerWidth;SH=innerHeight;sky.width=SW*dpr;sky.height=SH*dpr;sctx.setTransform(dpr,0,0,dpr,0,0);
+ bg=Array.from({length:Math.round(Math.min(240,SW*SH/6000))},()=>({x:Math.random()*SW,y:Math.random()*SH,z:Math.random()*.9+.1,t:Math.random()*6.28}));
+ links=[];const br=bg.map((s,i)=>i).filter(i=>bg[i].z>.75);for(const i of br){let b=-1,bd=1e9;for(const j of br){if(j<=i)continue;const d=Math.hypot(bg[i].x-bg[j].x,bg[i].y-bg[j].y);if(d<bd){bd=d;b=j}}if(b>=0&&bd<180)links.push([i,b])}
+ if(reduce)drawSky()}
+function drawSky(){sctx.clearRect(0,0,SW,SH);const cx=SW/2,cy=SH/2;warp*=.965;
+ if(warp<.05){sctx.lineWidth=1;for(const [i,j] of links){const a=bg[i],b=bg[j],d=Math.hypot(a.x-b.x,a.y-b.y);if(d>200)continue;sctx.strokeStyle='rgba(232,192,99,'+(.09*(1-d/200))+')';sctx.beginPath();sctx.moveTo(a.x,a.y);sctx.lineTo(b.x,b.y);sctx.stroke()}}
+ for(const s of bg){if(!reduce){s.t+=.025*s.z;s.y-=s.z*.05;if(warp>.01){s.x+=(s.x-cx)*.05*warp*s.z;s.y+=(s.y-cy)*.05*warp*s.z}}
+  if(s.y<-10||s.x<-10||s.x>SW+10||s.y>SH+10){if(warp>.05){s.x=cx+(Math.random()-.5)*80;s.y=cy+(Math.random()-.5)*80}else{s.x=Math.random()*SW;s.y=SH+5}}
+  const a=(.3+.7*Math.abs(Math.sin(s.t)))*s.z;
+  if(warp>.05){sctx.strokeStyle='rgba(243,228,180,'+a+')';sctx.lineWidth=s.z*1.6;sctx.beginPath();sctx.moveTo(s.x,s.y);sctx.lineTo(s.x-(s.x-cx)*.12*warp,s.y-(s.y-cy)*.12*warp);sctx.stroke()}
+  else{sctx.fillStyle=s.z>.75?'rgba(250,236,200,'+a+')':'rgba(205,212,250,'+a+')';sctx.beginPath();sctx.arc(s.x,s.y,s.z*1.3,0,6.283);sctx.fill()}}
+ if(!reduce&&E.meteorOn(S)&&Math.random()<.12)streaks.push({x:Math.random()*SW*1.2,y:-20,v:8+Math.random()*8,l:60+Math.random()*90});
+ for(const m of streaks){m.x-=m.v*.7;m.y+=m.v;const g=sctx.createLinearGradient(m.x,m.y,m.x+m.l*.7,m.y-m.l);g.addColorStop(0,'rgba(200,190,255,.9)');g.addColorStop(1,'rgba(200,190,255,0)');sctx.strokeStyle=g;sctx.lineWidth=2;sctx.beginPath();sctx.moveTo(m.x,m.y);sctx.lineTo(m.x+m.l*.7,m.y-m.l);sctx.stroke()}
+ streaks=streaks.filter(m=>m.y<SH+60);if(!reduce)requestAnimationFrame(drawSky)}
+addEventListener('resize',resizeSky);resizeSky();if(!reduce)requestAnimationFrame(drawSky);
+
+/* planetário */
+const orr=$('orrery'),octx=orr.getContext('2d');
+function drawOrrery(ts){if(current==='home'){const dpr=Math.min(2,devicePixelRatio||1),W=orr.clientWidth,H=orr.clientHeight;
+ if(orr.width!==Math.round(W*dpr)||orr.height!==Math.round(H*dpr)){orr.width=Math.round(W*dpr);orr.height=Math.round(H*dpr)}
+ octx.setTransform(dpr,0,0,dpr,0,0);octx.clearRect(0,0,W,H);const cx=W/2,cy=H/2,R=Math.min(W,H)/2-14,r0=R*.36,t=reduce?0:ts;
+ const glow=octx.createRadialGradient(cx,cy,0,cx,cy,r0);glow.addColorStop(0,E.meteorOn(S)?'rgba(180,165,242,.28)':'rgba(232,192,99,.22)');glow.addColorStop(1,'rgba(232,192,99,0)');octx.fillStyle=glow;octx.beginPath();octx.arc(cx,cy,r0,0,6.283);octx.fill();
+ octx.strokeStyle='rgba(232,192,99,.5)';octx.lineWidth=1;octx.beginPath();for(let k=0;k<72;k++){const a=k*Math.PI/36,l=k%6?5:10;octx.moveTo(cx+Math.cos(a)*(R+2),cy+Math.sin(a)*(R+2));octx.lineTo(cx+Math.cos(a)*(R+2-l),cy+Math.sin(a)*(R+2-l))}octx.stroke();
+ const u=E.unlockedGens(S),step=(R-r0)/8;
+ for(let i=0;i<u;i++){const rr=r0+step*(i+.5),n=S.bought[i];octx.setLineDash(n?[]:[3,5]);octx.strokeStyle=C.rule;octx.beginPath();octx.arc(cx,cy,rr,0,6.283);octx.stroke();octx.setLineDash([]);
+  const bodies=Math.min(n,24),spd=.00022/(1+i*.3)*(i%2?-1:1)*(1+Math.min(S.tick,100)/50),size=2+i*.28,mile=Math.floor(n/10);
+  for(let k=0;k<bodies;k++){const a=t*spd+k*6.283/bodies+i;octx.fillStyle=mile?C.brass:C.vellum;octx.beginPath();octx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,size+(mile?1:0),0,6.283);octx.fill()}}}
+ if(!reduce)requestAnimationFrame(drawOrrery)}
+
+/* ---------- montagem ---------- */
+const refs={};
+E.GENS.forEach((g,i)=>{const el=document.createElement('article');el.className='gen';el.id='gen-'+i;
+ el.innerHTML='<span class="gico">'+ico(g.icon)+'</span><div class="gid"><h3></h3><p class="gd"></p><div class="mile"><div class="track"><i></i></div><small></small></div></div><div class="gnum"><b class="num"></b><small></small></div><div class="gout"><b class="num"></b><small></small></div><button class="buy" type="button"></button>';
+ el.querySelector('h3').textContent=g.name;const btn=el.querySelector('.buy');btn.addEventListener('click',()=>act(()=>E.buyGen(S,i),n=>fxAt(btn,'+'+n+' '+(n===1?g.name:g.plural))));
+ refs['gen'+i]={el,btn,gd:el.querySelector('.gd'),mf:el.querySelector('.mile i'),mt:el.querySelector('.mile small'),mile:el.querySelector('.mile'),own:el.querySelector('.gnum b'),ownS:el.querySelector('.gnum small'),out:el.querySelector('.gout b'),outS:el.querySelector('.gout small'),gout:el.querySelector('.gout')};$('genList').append(el)});
+function plaque(id,icon,name,desc,extra){const el=document.createElement('article');el.className='plaque';el.id=id;el.innerHTML='<div class="ph"><span class="pico">'+ico(icon)+'</span><div><h3><span class="nm"></span><span class="lv"></span><span class="tag" hidden>'+ico('cpu')+'Robô fazendo</span></h3><p></p></div></div>'+extra;el.querySelector('.nm').textContent=name;el.querySelector('.ph p').textContent=desc;return el}
+const pTick=plaque('up-tick','bolt','Velocidade','Deixa TODOS os geradores mais rápidos.','<div class="effect"><div><small>Agora</small><b class="now"></b></div>'+ico('arrow')+'<div><small>Depois</small><b class="after"></b></div></div><button class="buy" type="button"></button><p class="note"></p>');
+const pExp=plaque('up-exp','expand','Expansão','Recomeça pontos, geradores e Velocidade. Em troca: ×2 em tudo e um gerador novo.','<div class="req"><span class="rq"></span></div><div class="track"><i></i></div><p class="note"></p><button class="cta" type="button" style="margin-top:10px"><span></span></button>');
+const pGal=plaque('up-gal','galaxy','Galáxia','Recomeça até as Expansões. Em troca: cada Velocidade fica mais forte para sempre (nesta vida de Estrelas).','<div class="req"><span class="rq"></span></div><div class="track"><i></i></div><p class="note"></p><button class="cta" type="button" style="margin-top:10px"><span></span></button>');
+pExp.classList.add('reset');pGal.classList.add('reset');$('prodSide').append(pTick,pExp,pGal);
+pTick.querySelector('.buy').addEventListener('click',e=>act(()=>E.buyTick(S),n=>fxAt(e.currentTarget,'+'+n+' Velocidade')));
+pExp.querySelector('.cta').addEventListener('click',()=>{if(E.expand(S)){toast('expand','Expansão '+S.exp+'!','Tudo ×'+fmt(E.expMult(S))+(S.exp<=4?' e um gerador novo liberado.':'.'));bigFx('exp','×'+fmt(E.expMult(S)));save();render()}});
+pGal.querySelector('.cta').addEventListener('click',()=>{if(E.galaxy(S)){toast('galaxy','Galáxia '+S.gal+'!','Cada Velocidade agora vale ×'+E.tickBase(S).toFixed(3).replace('.',','));bigFx('gal','Galáxia!');save();render()}});
+
+/* árvore de verdade: nós posicionados em grade e galhos curvos em SVG */
+const SVGNS='http://www.w3.org/2000/svg',treeBox=$('treeBox'),treeSvg=$('treeSvg');let selNode='seed',geo={col:150,row:130,nd:58};
+const edges=[];
+for(const t of E.TREE){for(const n of t.needs){const p=document.createElementNS(SVGNS,'path');p.setAttribute('class','edge');treeSvg.append(p);edges.push({from:n,to:t.k,p})}
+ const b=document.createElement('button');b.type='button';b.className='tn';b.id='node-'+t.k;b.innerHTML='<span class="c">'+ico(t.icon)+'</span><span class="n"></span><span class="p">'+ico('star')+'<span></span></span>';b.querySelector('.n').textContent=t.name;b.querySelector('.p span').textContent=fmt(t.cost);
+ b.addEventListener('click',()=>{selNode=t.k;renderTree()});b.addEventListener('dblclick',()=>buyNode(t.k));treeBox.append(b);refs['node-'+t.k]=b}
+function layoutTree(){const vp=$('treeVP'),w=vp.clientWidth||900,col=Math.max(88,Math.min(150,Math.floor((w-24)/7))),row=Math.round(col*.78)+30,nd=col>=130?58:col>=110?50:44;geo={col,row,nd};
+ treeBox.style.width=col*7+'px';treeBox.style.height=row*7+'px';treeBox.style.setProperty('--cw',(col-6)+'px');treeBox.style.setProperty('--nd',nd+'px');
+ const pos=k=>{const t=E.TREE.find(x=>x.k===k);return {x:t.x*col+col/2,y:t.y*row+nd/2+14}};
+ for(const t of E.TREE){const b=refs['node-'+t.k],p=pos(t.k);b.style.left=p.x+'px';b.style.top=p.y+'px'}
+ for(const e of edges){const a=pos(e.from),b=pos(e.to),y1=a.y+nd/2+50,y2=b.y-nd/2-4,my=(y1+y2)/2;e.p.setAttribute('d','M'+a.x+' '+y1+' C'+a.x+' '+my+','+b.x+' '+my+','+b.x+' '+y2)}
+ if(vp.scrollWidth>vp.clientWidth&&!vp.dataset.centered){vp.scrollLeft=(vp.scrollWidth-vp.clientWidth)/2;vp.dataset.centered='1'}}
+function buyNode(k){const t=E.TREE.find(x=>x.k===k);if(!E.buyNode(S,k))return;const b=refs['node-'+k];replay(b,'fresh');const p=center(b.querySelector('.c'));burst(p.x,p.y,18,[C.brass,C.verd,C.vellum]);floatText(t.name,p.x,p.y-20,'buy');
+ for(const o of E.TREE)if(o.needs.includes(k)&&o.needs.every(n=>S.perm[n]))replay(refs['node-'+o.k],'fresh');toast(t.icon,t.name+' comprado!',t.desc);
+ const next=E.TREE.find(o=>E.nodeState(S,o)==='can')||E.TREE.find(o=>E.nodeState(S,o)==='open');if(next)selNode=next.k;save();render()}
+$('tiBuy').addEventListener('click',()=>buyNode(selNode));
+
+E.CH.forEach((c,i)=>{const el=document.createElement('article');el.className='chal';el.id='chal-'+c.id;
+ el.innerHTML='<span class="cn num"></span><div><h3></h3><dl><dt>Regra</dt><dd class="rule"></dd><dt>Meta</dt><dd></dd><dt>Prêmio</dt><dd class="rew"></dd></dl></div><button class="buy" type="button"></button>';
+ el.querySelector('.cn').textContent=i+1;el.querySelector('h3').textContent=c.name;const dd=el.querySelectorAll('dd');dd[0].textContent=c.rule;dd[1].textContent='Chegar em '+fmt(c.goal)+' pontos';dd[2].textContent=c.reward;
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>armed(btn,'Toque de novo: sua vida recomeça',()=>{if(E.startChallenge(S,c.id)){toast('flag','Desafio: '+c.name,'Regra: '+c.rule+' Meta: '+fmt(c.goal)+' pontos.');save();go('home')}}));refs['chal-'+c.id]={el,btn};$('chalList').append(el)});
+E.LAB.forEach(r=>{const el=plaque('lab-'+r.id,r.icon,r.name,r.desc,'<div class="track neb"><i></i></div><p class="note"></p><button class="buy" type="button"></button>');el.classList.add('lab');
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.setLab(S,r.id)){save();render()}});refs['lab-'+r.id]=el;$('labList').append(el)});
+E.CONS.forEach(c=>{const el=plaque('cons-'+c.id,c.icon,c.name,c.desc,'<button class="buy" type="button" style="margin-top:14px"></button><p class="note"></p>');el.classList.add('cons');
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.buyCons(S,c.id)){fxAt(btn,c.name,[C.nebula,C.vellum]);toast(c.icon,c.name+' nível '+S.cons[c.id],c.desc);save();render()}});refs['cons-'+c.id]=el;$('consList').append(el)});
+for(const a of ACH){const el=document.createElement('div');el.className='ach';el.id='ach-'+a.id;el.innerHTML=ico(a.icon)+'<div><b></b><small></small></div>';el.querySelector('b').textContent=a.name;el.querySelector('small').textContent=a.desc;$('achList').append(el)}
+['Expansão','Galáxia','Renascer','Supernova'].forEach(n=>{const d=document.createElement('div');d.innerHTML='<b class="num">0</b>';d.append(n);$('ladder').append(d)});
+
+function armed(btn,label,fn){if(btn.dataset.armed){delete btn.dataset.armed;btn.classList.remove('armed');fn();return}btn.dataset.armed='1';btn.classList.add('armed');btn.textContent=label;setTimeout(()=>{if(btn.dataset.armed){delete btn.dataset.armed;btn.classList.remove('armed');render()}},4000)}
+function act(fn,after){const n=fn();if(n){after&&after(n);save();render()}}
+
+/* ---------- desenho ---------- */
+let current='home',sub='tree',achDirty=true,logNew=false,coachTarget=null,coachView=null,coachSub=null;
+function waitFor(cost){const r=E.rate(S);return r>0?'~'+fmtTime(Math.max(0,cost-S.points)/r):'aguarde'}
+function renderGens(){const g=E.globalMult(S),u=E.unlockedGens(S);let can=0;
+ E.GENS.forEach((G,i)=>{const r=refs['gen'+i];if(i>=u){r.el.hidden=i>u;r.el.classList.add('locked');r.el.classList.remove('can');r.btn.disabled=true;setText(r.btn,'Bloqueado');setText(r.gd,E.ch(S)==='four'?'Desligado neste desafio.':'Libera com uma Expansão.');r.mile.hidden=true;r.gout.hidden=true;setText(r.own,'0');setText(r.ownS,'');return}
+  r.el.hidden=false;r.el.classList.remove('locked');r.mile.hidden=false;r.gout.hidden=false;
+  setText(r.gd,i===0?'Produz pontos.':'Produz '+E.GENS[i-1].plural+'.');
+  const b=S.bought[i];setText(r.own,fmt(S.amt[i]));setText(r.ownS,'comprados: '+fmt(b));
+  r.mf.style.transform='scaleX('+(b%10)/10+')';setText(r.mt,'×2 a cada 10 ('+(b%10)+'/10) · agora ×'+fmt(E.genSelf(S,i)));
+  const out=S.amt[i]*E.genMult(S,i,g)*(i?E.CASCADE:1);setText(r.out,'+'+fmt(out)+'/s');setText(r.outS,i===0?'pontos por segundo':E.GENS[i-1].plural+' por segundo');
+  const p=E.planGen(S,i),price=E.genPrice(S,i);r.el.classList.toggle('can',p.n>0);r.btn.disabled=!p.n;if(p.n)can++;
+  setText(r.btn,p.n?(p.n>1?'Comprar ×'+p.n+'\npor '+fmt(p.cost):'Comprar por '+fmt(price)):'Custa '+fmt(price)+'\n'+waitFor(price))});
+ // velocidade
+ const tp=E.planTick(S),tb=E.tickBase(S),ro=E.robotsOn(S);pTick.classList.toggle('can',tp.n>0);pTick.classList.toggle('locked',E.ch(S)==='noTick');
+ setText(pTick.querySelector('.lv'),'Nível '+S.tick);pTick.querySelector('.tag').hidden=!(S.perm.autoTick&&ro);
+ setText(pTick.querySelector('.now'),'×'+fmt(Math.pow(tb,S.tick)));setText(pTick.querySelector('.after'),'×'+fmt(Math.pow(tb,S.tick+Math.max(1,tp.n))));
+ const tbtn=pTick.querySelector('.buy');tbtn.disabled=!tp.n;setText(tbtn,E.ch(S)==='noTick'?'Desligada neste desafio':tp.n?(tp.n>1?'Comprar ×'+tp.n+' por '+fmt(tp.cost):'Comprar por '+fmt(E.tickPrice(S))):'Custa '+fmt(E.tickPrice(S))+' · '+waitFor(E.tickPrice(S)));
+ setText(pTick.querySelector('.note'),'Cada uma multiplica tudo por '+tb.toFixed(3).replace('.',',')+'. Fica 10× mais cara a cada compra.');if(tp.n)can++;
+ // expansão
+ const en=E.expNeed(S),ce=E.canExpand(S);pExp.classList.toggle('can',ce);pExp.querySelector('.tag').hidden=!(S.perm.autoExp&&ro);setText(pExp.querySelector('.lv'),S.exp?'Você tem '+S.exp:'');
+ setText(pExp.querySelector('.rq'),'Compre '+en.n+' '+E.GENS[en.gen].plural+' ('+fmt(S.bought[en.gen])+'/'+en.n+')');pExp.querySelector('.track i').style.transform='scaleX('+Math.min(1,S.bought[en.gen]/en.n)+')';
+ setText(pExp.querySelector('.note'),E.unlockedGens(S)<8&&E.ch(S)!=='four'?'Próxima libera: '+E.GENS[E.unlockedGens(S)].name+'. Cada Expansão vale ×'+fmt(E.expMult(S))+'.':'Cada Expansão vale ×'+fmt(E.expMult(S))+' em tudo.');
+ const eb=pExp.querySelector('.cta');eb.disabled=!ce;eb.classList.toggle('ready',ce);setText(eb.querySelector('span'),ce?'Expandir agora':'Ainda não dá');
+ // galáxia
+ const gn=E.galNeed(S),cg=E.canGalaxy(S),gOpen=E.unlockedGens(S)===8&&E.ch(S)!=='four';pGal.hidden=!gOpen&&!S.gal&&!S.rebirths;pGal.classList.toggle('can',cg);pGal.classList.toggle('locked',!gOpen);pGal.querySelector('.tag').hidden=!(S.perm.autoExp&&ro);setText(pGal.querySelector('.lv'),E.galaxies(S)?'Você tem '+E.galaxies(S):'');
+ setText(pGal.querySelector('.rq'),gOpen?'Compre '+gn+' Estações Orbitais ('+fmt(S.bought[7])+'/'+gn+')':'Libere a Estação Orbital primeiro (4 Expansões).');pGal.querySelector('.track i').style.transform='scaleX('+(gOpen?Math.min(1,S.bought[7]/gn):0)+')';
+ setText(pGal.querySelector('.note'),'Velocidade agora: ×'+tb.toFixed(3).replace('.',',')+' cada. Com mais uma Galáxia: ×'+(tb+(S.perm.tick2?.03:.02)).toFixed(3).replace('.',',')+'.');
+ const gb=pGal.querySelector('.cta');gb.disabled=!cg;gb.classList.toggle('ready',cg);setText(gb.querySelector('span'),cg?'Criar Galáxia agora':'Ainda não dá');
+ return can+(ce?1:0)+(cg?1:0)}
+function renderTree(){let can=0;
+ for(const t of E.TREE){const st=E.nodeState(S,t),b=refs['node-'+t.k];const cls='tn '+st+(selNode===t.k?' sel':'')+(b.classList.contains('fresh')?' fresh':'');if(b.className!==cls)b.className=cls;b.setAttribute('aria-label',t.name+', '+({owned:'comprada',can:'dá para comprar',open:'liberada',locked:'bloqueada'})[st]);if(st==='can')can++}
+ for(const e of edges){const a=S.perm[e.from],b=S.perm[e.to],t=E.TREE.find(x=>x.k===e.to),st=E.nodeState(S,t);e.p.setAttribute('class','edge'+(a&&b?' owned':st==='can'?' can':a?' open':''))}
+ const t=E.TREE.find(x=>x.k===selNode),st=E.nodeState(S,t);if($('tiIcon').dataset.k!==t.k){$('tiIcon').innerHTML=ico(t.icon);$('tiIcon').dataset.k=t.k}$('tiIcon').style.borderColor=st==='owned'?'var(--brass)':st==='can'?'var(--verd)':'';
+ setText($('tiName'),t.name);setText($('tiDesc'),t.desc);setText($('tiCost'),stars(t.cost));setText($('tiNeeds'),t.needs.length?t.needs.map(n=>E.TREE.find(x=>x.k===n).name+(S.perm[n]?' ✓':'')).join(', '):'Nada, é a raiz da árvore');
+ const btn=$('tiBuy');btn.disabled=st!=='can';setText(btn,st==='owned'?'Você já tem':st==='locked'?'Compre antes o que ela precisa':st==='open'?'Faltam '+stars(t.cost-S.stars):'Comprar por '+stars(t.cost));
+ return can}
+function renderChal(){let c=0;$('chalLock').hidden=S.perm.chal;
+ E.CH.forEach(x=>{const r=refs['chal-'+x.id],won=E.won(S,x.id),active=S.chActive===x.id,open=E.chOpen(S,x);
+  r.el.classList.toggle('done',won);r.el.classList.toggle('active',active);r.el.classList.toggle('locked',!open);
+  r.btn.disabled=!open||!!S.chActive;if(!r.btn.dataset.armed)setText(r.btn,active?'Em andamento':!open?(S.perm.chal?'Vença o anterior':'Bloqueado'):S.chActive?'Termine o desafio atual':won?'Vencido · jogar de novo':'Começar desafio');
+  if(open&&!won&&!S.chActive)c++});return c}
+function renderLab(){$('labLock').hidden=S.perm.research;$('labList').hidden=!S.perm.research;setText($('labSlots'),S.perm.research?'Pesquisando '+S.lab.active.slice(0,E.labSlots(S)).length+' de '+E.labSlots(S)+' ao mesmo tempo.':'');
+ for(const r of E.LAB){const el=refs['lab-'+r.id],lv=S.lab.lv[r.id],on=S.lab.active.slice(0,E.labSlots(S)).includes(r.id),dur=E.labDur(r,lv),max=r.max&&lv>=r.max,locked=r.needSN&&!S.supernovas;
+  el.classList.toggle('active',on);el.classList.toggle('locked',!!locked);setText(el.querySelector('.lv'),'Nível '+lv+(r.max?'/'+r.max:''));el.querySelector('.track i').style.transform='scaleX('+(max?1:Math.min(1,S.lab.prog[r.id]/dur))+')';
+  setText(el.querySelector('.note'),max?'Nível máximo.':locked?'Libera depois da primeira Supernova.':'Próximo nível em '+fmtTime(Math.max(0,dur-S.lab.prog[r.id]))+(on?'':' (parado)')+'.');
+  const b=el.querySelector('.buy');b.disabled=!!locked||max;b.classList.toggle('on',on);setText(b,max?'Completo':on?'Pesquisando · toque para parar':'Pesquisar este')}}
+function renderNova(){const open=S.perm.supernova||S.supernovas>0;$('novaLock').hidden=open;setText($('dustInfo'),fmt(S.dust));
+ setText($('dustTxt'),'Poeira juntada: '+fmt(S.dustTotal)+'. Bônus em tudo: ×'+fmt(1+S.dustTotal)+'.');
+ const can=E.canSupernova(S),d=E.dustGain(S);setText($('snCount'),S.supernovas?S.supernovas+' Supernovas feitas':'');$('snFill').style.transform='scaleX('+logp(S.points,E.CAP)+')';
+ setText($('snText'),!S.perm.supernova?'Compre “Coração da Estrela” na árvore.':can?'O universo transbordou! Você vai ganhar '+fmt(d)+' de Poeira.':'Chegue em 1e300 pontos. Agora: '+fmt(S.points)+'. Se explodir com as Estrelas desta rodada você ganharia '+fmt(d)+' de Poeira.');
+ const b=$('snBtn');b.disabled=!can;b.classList.toggle('ready',can);b.classList.add('neb');setText($('snBtnT'),can?'Explodir em Supernova (+'+fmt(d)+' Poeira)':'Ainda não');
+ let n=0;for(const c of E.CONS){const el=refs['cons-'+c.id],l=S.cons[c.id],max=l>=c.max,p=c.price(l),ok=!max&&S.dust>=p;el.classList.toggle('can',ok);setText(el.querySelector('.lv'),'Nível '+l+'/'+c.max);
+  const b2=el.querySelector('.buy');b2.disabled=!ok;setText(b2,max?'Completo':ok?'Comprar por '+fmt(p)+' Poeira':'Custa '+fmt(p)+' Poeira');setText(el.querySelector('.note'),max?'':'Faltam '+fmt(Math.max(0,p-S.dust))+' de Poeira.');if(ok)n++}
+ return (can?1:0)+n}
+function renderBreakdown(){const ol=$('breakdown'),base=S.amt[0]*E.genSelf(S,0),rows=[['Faíscas produzindo ('+fmt(S.amt[0])+')',base,'base'],...E.factors(S),['Total por segundo',E.rate(S),'total']];
+ while(ol.childElementCount<rows.length){const li=document.createElement('li');li.append(document.createElement('span'),document.createElement('b'));ol.append(li)}
+ while(ol.childElementCount>rows.length)ol.lastElementChild.remove();
+ rows.forEach(([l,v,k],i)=>{const li=ol.children[i];li.className=k==='total'?'total':v<1?'neg':'';setText(li.firstChild,l);setText(li.lastChild,k?fmt(v)+'/s':'×'+fmt(v))})}
+function renderAch(){const n=S.ach.length;setText($('achSum'),n+' de '+ACH.length+' · +'+n*5+'% de ganho');$('achFill').style.transform='scaleX('+n/ACH.length+')';for(const a of ACH)$('ach-'+a.id).classList.toggle('done',S.ach.includes(a.id));achDirty=false}
+function renderStats(){const s=S,rows=[['Tempo jogado',fmtClock(s.played)],['Tempo nesta vida',fmtClock(s.runTime)],['Renascimento mais rápido',s.fastest?fmtClock(s.fastest):'ainda não'],['Maior quantidade de pontos',fmt(s.best)],['Melhor ganho por segundo',fmt(s.bestRate)],['Renascimentos',fmt(s.rebirths)],['Estrelas juntadas',fmt(s.starsTotal)],['Desafios vencidos',s.chDone.length+' de '+E.CH.length],['Níveis de pesquisa',fmt(labTotal(s))],['Supernovas',fmt(s.supernovas)],['Poeira juntada',fmt(s.dustTotal)],['Chuvas de meteoros',fmt(s.meteors)]];
+ const box=$('stats');if(box.childElementCount!==rows.length)box.replaceChildren(...rows.map(()=>{const d=document.createElement('div');d.className='stat';const b=document.createElement('b');b.className='num';d.append(document.createElement('small'),b);return d}));
+ rows.forEach(([l,v],i)=>{setText(box.children[i].firstChild,l);setText(box.children[i].lastChild,v)})}
+function coach(){const s=S,say=(t,target,view,sb)=>{setText($('coachText'),t);coachTarget=target;coachView=view||null;coachSub=sb||null};
+ if(s.chActive){const c=E.CH.find(x=>x.id===s.chActive);return say('Desafio '+c.name+': chegue em '+fmt(c.goal)+' pontos para vencer. Regra: '+c.rule,'challengeBlock','home')}
+ if(E.canSupernova(s))return say('O universo transbordou! Faça uma Supernova para ganhar '+fmt(E.dustGain(s))+' de Poeira Estelar.','snBtn','nova');
+ if(E.canRebirth(s)&&!s.rebirths&&!s.supernovas)return say('Você chegou em 1e40! RENASÇA para ganhar sua primeira Estrela.','rebirthBlock','home');
+ const node=E.TREE.find(t=>E.nodeState(s,t)==='can');if(node)return say('Você tem Estrelas! Compre “'+node.name+'” na árvore.','node-'+node.k,'stars','tree');
+ if(!s.bought[0])return say('Compre uma Faísca na Produção. Ela gera pontos sozinha.','gen-0','prod');
+ if(E.canGalaxy(s)&&!(s.perm.autoExp&&E.robotsOn(s)))return say('Crie uma Galáxia: a Velocidade fica mais forte.','up-gal','prod');
+ if(E.canExpand(s)&&!(s.perm.autoExp&&E.robotsOn(s)))return say('Faça uma Expansão: ×'+fmt(E.expMult(s))+' em tudo'+(E.unlockedGens(s)<8?' e libera '+E.GENS[E.unlockedGens(s)].name+'.':'.'),'up-exp','prod');
+ const u=E.unlockedGens(s);for(let k=u-1;k>=0;k--)if(E.planGen(s,k).n&&!((k<4&&s.perm.auto1||k>=4&&s.perm.auto2)&&E.robotsOn(s)))return say('Compre '+E.GENS[k].plural+(k?': elas produzem '+E.GENS[k-1].plural+' sozinhas.':': elas produzem pontos.'),'gen-'+k,'prod');
+ if(E.planTick(s).n&&!(s.perm.autoTick&&E.robotsOn(s)))return say('Compre Velocidade: deixa todos os geradores mais rápidos.','up-tick','prod');
+ if(E.canRebirth(s)&&!(s.perm.autoRb&&E.robotsOn(s)))return say('Renasça para ganhar '+stars(E.starGain(s))+'. Esperar mais dá mais Estrelas.','rebirthBlock','home');
+ for(const c of E.CONS)if(S.cons[c.id]<c.max&&S.dust>=c.price(S.cons[c.id]))return say('Compre '+c.name+' com Poeira Estelar.','cons-'+c.id,'nova');
+ if(s.perm.research&&s.lab.active.length<E.labSlots(s))return say('Seu Laboratório tem vaga livre: escolha uma pesquisa.','labList','stars','lab');
+ const ch=E.CH.find(c=>E.chOpen(s,c)&&!E.won(s,c.id));if(ch&&s.starsTotal>50)return say('Tente o desafio “'+ch.name+'” para ganhar um prêmio eterno.','chal-'+ch.id,'stars','chal');
+ const en=E.expNeed(s);if(s.bought[en.gen]<en.n)return say('Junte '+E.GENS[en.gen].plural+': faltam '+(en.n-s.bought[en.gen])+' para a próxima Expansão.','gen-'+en.gen,'prod');
+ return say('Tudo andando sozinho. Espere crescer até '+fmt(s.points>=E.RB_MIN?E.nextStarAt(s):E.RB_MIN)+' pontos.','points','home')}
+function badge(id,n){const b=$(id);b.hidden=!n;if(n&&!b.classList.contains('dot'))setText(b,String(n))}
+function render(){const s=S,r=E.rate(s);
+ setText($('hPoints'),fmt(s.points));setText($('hRate'),'+'+fmt(r)+'/s');setText($('hStars'),fmt(s.stars));$('hDustBox').hidden=!s.dustTotal;setText($('hDust'),fmt(s.dust));
+ const met=E.meteorOn(s);$('hEvent').classList.toggle('on',met);setText($('hEventT'),met?'Chuva de meteoros ×3 · '+Math.ceil((s.meteorUntil-Date.now())/1000)+' s':'Céu calmo');
+ const goal=E.chGoal(s);$('hRbFill').style.transform='scaleX('+logp(s.points,s.points>=E.RB_MIN&&!s.chActive?E.CAP:goal)+')';
+ setText($('hRbLabel'),s.chActive?'Meta do desafio':s.points>=E.RB_MIN?'Pode renascer! Até o limite do universo:':'Até renascer (1e40)');
+ const prodN=renderGens(),treeN=renderTree(),chalN=renderChal(),novaN=renderNova();
+ badge('b-prod',prodN);badge('b-tree',treeN);badge('b-chal',chalN);badge('b-stars',treeN+chalN);badge('b-nova',novaN);badge('b-log',logNew&&current!=='log'?1:0);
+ $('nav-nova').classList.toggle('locked',!s.perm.supernova&&!s.supernovas);
+ if(current==='home'){setText($('points'),fmt(s.points));setText($('rate'),'+'+fmt(r)+' por segundo');
+  $('rebirthBlock').hidden=!!s.chActive;$('challengeBlock').hidden=!s.chActive;
+  if(s.chActive){const c=E.CH.find(x=>x.id===s.chActive);setText($('cbName'),c.name);setText($('cbRule'),'Regra: '+c.rule+' Prêmio: '+c.reward);$('cbFill').style.transform='scaleX('+logp(s.points,c.goal)+')';setText($('cbText'),fmt(s.points)+' de '+fmt(c.goal)+' pontos');
+   const w=$('cbWin'),cw=E.canRebirth(s);w.disabled=!cw;w.classList.toggle('ready',cw);setText(w.querySelector('span'),cw?'Vencer o desafio (+'+stars(E.starGain(s))+')':'Chegue na meta para vencer')}
+  else{const g=E.starGain(s),can=E.canRebirth(s);$('rbFill').style.transform='scaleX('+logp(s.points,E.RB_MIN)+')';
+   setText($('rbGain'),can?'+'+stars(g)+'. Elas deixam tudo mais forte para sempre.':'Estrelas, que deixam tudo mais forte para sempre.');
+   setText($('rbText'),can?'Agora: +'+stars(g)+'. A próxima Estrela vem em '+fmt(E.nextStarAt(s))+' pontos.':'Faltam '+fmt(Math.max(0,E.RB_MIN-s.points))+' pontos. Você está em '+fmt(s.points)+'.');
+   const b=$('rebirthBtn');b.disabled=!can;b.classList.toggle('ready',can);setText($('rbBtnT'),can?'Renascer agora (+'+stars(g)+')':'Ainda não dá para renascer')}
+  const L=$('ladder').children,vals=[s.exp,E.galaxies(s),s.rebirths,s.supernovas];vals.forEach((v,i)=>{setText(L[i].firstChild,fmt(v));L[i].classList.toggle('on',v>0)});
+  renderBreakdown()}
+ if(current==='stars'){setText($('starInfo'),fmt(s.stars));setText($('starBonusTxt'),'Estrelas juntadas: '+fmt(s.starsTotal)+'. Bônus em tudo: ×'+fmt(E.starBonus(s))+'.');if(sub==='lab')renderLab()}
+ if(current==='log'){if(achDirty)renderAch();renderStats()}
+ coach()}
+
+/* ---------- ações principais ---------- */
+function doRebirth(){const res=E.rebirth(S);if(!res)return;if(res.challenge){const c=E.CH.find(x=>x.id===res.challenge);toast('trophy','Desafio vencido: '+c.name+'!','Prêmio para sempre: '+c.reward)}
+ else toast('refresh','Você renasceu!','+'+stars(res.stars)+'. Bônus das Estrelas agora: ×'+fmt(E.starBonus(S))+'.');bigFx('rb','+'+stars(res.stars));save();render()}
+$('rebirthBtn').addEventListener('click',doRebirth);$('cbWin').addEventListener('click',doRebirth);
+$('giveUp').addEventListener('click',e=>{const b=e.currentTarget,sp=b.querySelector('span');if(b.dataset.armed){delete b.dataset.armed;E.quitChallenge(S);toast('door','Você saiu do desafio','Sua vida recomeçou normalmente.');sp.textContent='Desistir do desafio';save();render();return}
+ b.dataset.armed='1';sp.textContent='Toque de novo para desistir';setTimeout(()=>{delete b.dataset.armed;sp.textContent='Desistir do desafio'},4000)});
+$('snBtn').addEventListener('click',()=>{if(!E.canSupernova(S))return;const d=E.supernova(S);toast('nova','SUPERNOVA!','+'+fmt(d)+' de Poeira Estelar. Bônus em tudo: ×'+fmt(1+S.dustTotal)+'.');bigFx('nova','+'+fmt(d)+' Poeira');selNode='seed';save();go('nova')});
+$('reset').addEventListener('click',e=>{const b=e.currentTarget,sp=b.querySelector('span');if(b.dataset.armed){delete b.dataset.armed;S=E.fresh();S.seenHelp=true;achDirty=true;save();go('home');toast('trash','Progresso apagado','Tudo recomeçou do zero.');sp.textContent='Apagar todo o progresso';return}
+ b.dataset.armed='1';sp.textContent='Toque de novo para apagar TUDO';setTimeout(()=>{delete b.dataset.armed;sp.textContent='Apagar todo o progresso'},4000)});
+function go(view){current=view;for(const v of ['home','prod','stars','nova','log','help'])$('view-'+v).hidden=v!==view;
+ root.querySelectorAll('.nav').forEach(b=>{if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
+ if(view==='stars')setSub(sub);if(view==='log'){logNew=false;achDirty=true;requestAnimationFrame(drawChart)}if(view!=='help')S.seenHelp=true;if(reduce&&view==='home')requestAnimationFrame(drawOrrery);
+ scrollTo({top:0});render()}
+function setSub(name){sub=name;root.querySelectorAll('[data-sub]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sub===name)));for(const n of ['tree','chal','lab'])$('sub-'+n).hidden=n!==name;if(name==='tree')requestAnimationFrame(layoutTree);if(name==='lab')renderLab()}
+root.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
+root.querySelectorAll('[data-sub]').forEach(b=>b.addEventListener('click',()=>{setSub(b.dataset.sub);render()}));
+$('helpBtn').addEventListener('click',()=>go('help'));
+$('coach').addEventListener('click',()=>{if(coachView&&coachView!==current)go(coachView);if(coachSub)setSub(coachSub);const k=coachTarget&&coachTarget.startsWith('node-')?coachTarget.slice(5):null;if(k){selNode=k;renderTree()}
+ requestAnimationFrame(()=>{const el=$(coachTarget);if(el){el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'center',inline:'center'});replay(el,'hint')}})});
+addEventListener('resize',()=>{if(current==='stars'&&sub==='tree')layoutTree();if(current==='log')drawChart()});
+
+/* ---------- gráfico ---------- */
+let chartMode='p',hoverI=-1;
+function drawChart(){const cv=$('chart'),W=cv.parentElement.clientWidth,H=280,dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W,H);
+ const data=S.hist;$('chartEmpty').hidden=data.length>=2;cv.hidden=data.length<2;if(data.length<2){$('tip').hidden=true;return}
+ const vals=data.map(d=>Math.log10(Math.max(1,chartMode==='p'?d.p:d.g)));let lo=Math.floor(Math.min(...vals)),hi=Math.ceil(Math.max(...vals));if(hi<=lo)hi=lo+1;
+ const P={l:78,r:14,t:12,b:30},x=i=>P.l+(W-P.l-P.r)*i/(data.length-1),y=v=>P.t+(H-P.t-P.b)*(1-(v-lo)/(hi-lo));
+ c.font='13px "Atkinson Hyperlegible", sans-serif';c.textBaseline='middle';const step=Math.max(1,Math.ceil((hi-lo)/5));
+ for(let e=lo;e<=hi;e+=step){const yy=Math.round(y(e))+.5;c.strokeStyle='rgba(120,130,190,.18)';c.lineWidth=1;c.beginPath();c.moveTo(P.l,yy);c.lineTo(W-P.r,yy);c.stroke();c.fillStyle='#a6abc8';c.textAlign='right';c.fillText(fmt(10**e),P.l-10,yy)}
+ const age=(Date.now()-data[0].t)/60000;c.textAlign='left';c.textBaseline='alphabetic';c.fillText('há '+Math.max(1,Math.round(age))+' min',P.l,H-8);c.textAlign='right';c.fillText('agora',W-P.r,H-8);
+ const grad=c.createLinearGradient(0,P.t,0,H-P.b);grad.addColorStop(0,'rgba(232,192,99,.16)');grad.addColorStop(1,'rgba(232,192,99,0)');
+ c.beginPath();vals.forEach((v,i)=>i?c.lineTo(x(i),y(v)):c.moveTo(x(i),y(v)));c.lineTo(x(vals.length-1),H-P.b);c.lineTo(x(0),H-P.b);c.closePath();c.fillStyle=grad;c.fill();
+ c.beginPath();vals.forEach((v,i)=>i?c.lineTo(x(i),y(v)):c.moveTo(x(i),y(v)));c.strokeStyle=C.brass;c.lineWidth=2;c.lineJoin='round';c.stroke();
+ const first=chartMode==='p'?data[0].p:data[0].g,last=chartMode==='p'?data.at(-1).p:data.at(-1).g;cv.setAttribute('aria-label',(chartMode==='p'?'Pontos':'Ganho por segundo')+': de '+fmt(first)+' para '+fmt(last)+' nos últimos '+Math.round(age)+' minutos.');
+ const tip=$('tip');if(hoverI>=0&&hoverI<data.length){const hx=x(hoverI),hy=y(vals[hoverI]);c.strokeStyle='rgba(243,236,220,.35)';c.lineWidth=1;c.beginPath();c.moveTo(hx,P.t);c.lineTo(hx,H-P.b);c.stroke();
+  c.fillStyle=C.ink;c.beginPath();c.arc(hx,hy,6,0,6.283);c.fill();c.fillStyle=C.brass;c.beginPath();c.arc(hx,hy,4,0,6.283);c.fill();
+  const d=data[hoverI],ago=Math.round((Date.now()-d.t)/1000);tip.hidden=false;tip.innerHTML='<b></b><span></span>';tip.querySelector('b').textContent=fmt(chartMode==='p'?d.p:d.g)+(chartMode==='p'?' pontos':'/s');tip.querySelector('span').textContent=ago<60?'há '+ago+' s':'há '+Math.round(ago/60)+' min';
+  tip.style.left=Math.min(Math.max(hx,70),W-70)+'px';tip.style.top=hy+'px'}else tip.hidden=true}
+$('chart').addEventListener('pointermove',e=>{const r=e.currentTarget.getBoundingClientRect(),n=S.hist.length;if(n<2)return;hoverI=Math.max(0,Math.min(n-1,Math.round((e.clientX-r.left-78)/(r.width-92)*(n-1))));drawChart()});
+$('chart').addEventListener('pointerleave',()=>{hoverI=-1;drawChart()});
+$('chart').addEventListener('keydown',e=>{const n=S.hist.length;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();hoverI=hoverI<0?n-1:Math.max(0,Math.min(n-1,hoverI+(e.key==='ArrowLeft'?-1:1)));drawChart()}});
+$('chart').addEventListener('blur',()=>{hoverI=-1;drawChart()});
+root.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.mode;root.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));setText($('chartTitle'),chartMode==='p'?'Pontos ao longo do tempo':'Ganho por segundo ao longo do tempo');drawChart()}));
+
+/* ---------- tempo fora ---------- */
+(function offline(){const away=Math.min(8*3600,Math.max(0,(Date.now()-S.lastTick)/1000));if(away<30)return;
+ const labDone=E.labStep(S,away);const pct=E.offlinePct(S);let before=S.points;
+ if(pct>0){const n=Math.min(600,Math.ceil(away)),dt=away/n*pct;for(let i=0;i<n;i++){E.step(S,dt,0);E.autoRun(S)}}
+ setTimeout(()=>toast('moon','Bem-vindo de volta!','Você ficou fora '+fmtClock(away)+'.'+(pct>0?' Seus geradores trabalharam a '+Math.round(pct*100)+'%: agora você tem '+fmt(S.points)+' pontos.':' Compre “Sono Produtivo” na árvore para ganhar pontos fora.')+(labDone.length?' Pesquisas concluídas: '+labDone.length+'.':'')),700)})();
+if(S.meteorNext<Date.now()-600000)S.meteorNext=Date.now()+180000;
+if(oldVersion)setTimeout(()=>toast('sparkles','Nova versão do jogo!','Tudo foi refeito: cascata de geradores, árvore, desafios, laboratório e Supernova. O progresso recomeçou.'),1200);
+
+/* ---------- loop ---------- */
+let last=performance.now(),floatClock=0,histClock=0;
+function checkAch(){const got=ACH.filter(a=>!S.ach.includes(a.id)&&a.test(S));if(!got.length)return;S.ach.push(...got.map(a=>a.id));achDirty=true;logNew=true;
+ if(got.length===1)toast(got[0].icon,'Conquista: '+got[0].name,got[0].desc+'. +5% de ganho para sempre.');else toast('trophy',got.length+' novas conquistas!',got.map(a=>a.name).join(', ')+'.')}
+setInterval(()=>{const now=performance.now(),dt=Math.max(0,Math.min((now-last)/1000,30));last=now;const s=S,wall=Date.now();
+ if(wall>=s.meteorNext&&!E.meteorOn(s,wall)){s.meteorUntil=wall+30000;s.meteors++;s.meteorNext=wall+30000+240000+Math.random()*240000;toast('comet','Chuva de meteoros!','Seu ganho fica ×3 por 30 segundos.')}
+ const r=E.step(s,dt,wall);
+ for(const done of E.labStep(s,dt))toast(done.icon,'Pesquisa concluída: '+done.name,'Agora no nível '+s.lab.lv[done.id]+'.');
+ const res=E.autoRun(s);if(res){if(res.challenge){const c=E.CH.find(x=>x.id===res.challenge);toast('trophy','Desafio vencido: '+c.name+'!','Prêmio: '+c.reward)}else if(current==='home'){const p=center($('points'));floatText('+'+stars(res.stars),p.x,p.y-p.h,'star')}}
+ checkAch();
+ histClock+=dt;if(histClock>=10){histClock=0;s.hist.push({t:wall,p:s.points,g:r});if(s.hist.length>360)s.hist.shift();if(current==='log')drawChart()}
+ floatClock+=dt;if(floatClock>=1){floatClock=0;if(current==='home'&&!document.hidden&&r>0){const c=center($('points'));if(c.r.bottom>0&&c.r.top<innerHeight)floatText('+'+fmt(r),c.x+(Math.random()-.5)*c.w*.5,c.y-c.h*.6,'gain')}}
+ render()},100);
+setInterval(save,2000);document.addEventListener('visibilitychange',()=>{last=performance.now();save()});
+go(S.seenHelp?'home':'help');save();if(!reduce)requestAnimationFrame(drawOrrery);layoutTree();
+})();
+</script>
+</body>
+</html>
