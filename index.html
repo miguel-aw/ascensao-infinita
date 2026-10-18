@@ -232,6 +232,14 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
 .legend-row i{width:14px;height:14px;border-radius:50%;border:2px solid var(--rule-2)}
 .legend-row .lo{background:var(--brass);border-color:var(--brass)}.legend-row .lc{border-color:var(--verd)}.legend-row .lp{border-color:var(--vellum-3)}.legend-row .ll{border-style:dashed}
 
+.miles{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.mile-row{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--r-md);border:1px solid var(--rule);background:var(--ink-1);color:var(--vellum-3);font-size:14.5px}
+.mile-row b{flex:none;width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:16px;border:1px solid var(--rule-2);color:var(--vellum-2)}
+.mile-row.done{border-color:oklch(0.76 0.11 295 / .5);color:var(--vellum)}.mile-row.done b{background:var(--nebula);color:var(--nebula-ink);border-color:transparent}
+.bang{border-color:var(--nebula);background:linear-gradient(120deg,var(--nebula-wash),var(--brass-wash));margin-top:16px}
+.bang h3{color:var(--nebula)}
+.work .buy{background:var(--brass);color:var(--brass-ink)}.work .buy:disabled{background:var(--ink-3);color:var(--vellum-3)}
+.bhu .buy{background:var(--nebula);color:var(--nebula-ink)}.bhu .buy:disabled{background:var(--ink-3);color:var(--vellum-3)}
 /* desafios */
 .chal{display:grid;grid-template-columns:56px minmax(0,1fr) 230px;gap:18px;align-items:center;padding:18px 20px;border-top:1px solid var(--rule)}
 .chal:first-child{border-top:0}
@@ -420,6 +428,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
      <div class="hud-stat"><small>Pontos</small><b class="num" id="hPoints">10</b><span class="up" id="hRate">+0/s</span></div>
      <div class="hud-stat"><small>Estrelas</small><b class="num brass" id="hStars">0</b></div>
      <div class="hud-stat" id="hDustBox" hidden><small>Poeira</small><b class="num nebula" id="hDust">0</b></div>
+     <div class="event" id="hBH" hidden><svg class="i"><use href="#i-galaxy"/></svg><span id="hBHT"></span></div>
      <div class="event" id="hEvent"><svg class="i"><use href="#i-comet"/></svg><span id="hEventT">Céu calmo</span></div>
      <div class="hud-rb"><small id="hRbLabel">Até renascer</small><div class="track"><i id="hRbFill"></i></div></div>
      <button class="iconbtn" id="helpBtn" type="button" aria-label="Como jogar"><svg class="i"><use href="#i-help"/></svg></button>
@@ -480,6 +489,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
        <div class="bank"><svg class="i"><use href="#i-star"/></svg><div><small>Para gastar</small><b class="num" id="starInfo">0</b></div><p id="starBonusTxt"></p></div>
        <div class="subtabs" role="tablist">
          <button type="button" data-sub="tree" aria-pressed="true"><svg class="i"><use href="#i-sprout"/></svg>Árvore<span class="badge" id="b-tree" hidden></span></button>
+         <button type="button" data-sub="work" aria-pressed="false"><svg class="i"><use href="#i-hammer"/></svg>Oficina<span class="badge" id="b-work" hidden></span></button>
          <button type="button" data-sub="chal" aria-pressed="false"><svg class="i"><use href="#i-flag"/></svg>Desafios<span class="badge" id="b-chal" hidden></span></button>
          <button type="button" data-sub="lab" aria-pressed="false"><svg class="i"><use href="#i-flask"/></svg>Laboratório</button>
        </div>
@@ -498,10 +508,18 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
            </aside>
          </div>
        </div>
+       <div id="sub-work" hidden>
+         <p class="lead" style="margin:0 0 14px">Melhorias <b>sem fim</b> compradas com Estrelas, para usar as que sobram depois da árvore. Se der para comprar vários níveis, compra todos. A Supernova não apaga a Oficina.</p>
+         <p class="lockmsg" id="workLock"><svg class="i"><use href="#i-lock"/></svg>Compre “Oficina Estelar” na árvore para liberar.</p>
+         <div class="cards" id="workList"></div>
+       </div>
        <div id="sub-chal" hidden>
          <p class="lead" style="margin:0 0 14px">Um desafio é uma vida com uma <b>regra ruim</b>. Chegue na meta de pontos para vencer e ganhar um <b class="verd">prêmio para sempre</b>. Ao vencer você também renasce e ganha Estrelas. Vença um para liberar o próximo.</p>
          <p class="lockmsg" id="chalLock"><svg class="i"><use href="#i-lock"/></svg>Compre “Portal dos Desafios” na árvore para liberar.</p>
          <div class="gens" id="chalList"></div>
+         <div class="kicker">Desafios da Supernova</div>
+         <p class="lockmsg" id="chal2Lock"><svg class="i"><use href="#i-lock"/></svg>Libera com 3 Supernovas.</p>
+         <div class="gens" id="chal2List"></div>
        </div>
        <div id="sub-lab" hidden>
          <p class="lead" style="margin:0 0 14px">Pesquisas melhoram <b>sozinhas com o tempo real</b>, até com o jogo fechado. Escolha o que pesquisar; quando um nível termina, o próximo começa sozinho.</p>
@@ -522,6 +540,15 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
          <p class="small" id="snText"></p>
          <button class="cta" id="snBtn" type="button" disabled><svg class="i"><use href="#i-nova"/></svg><span id="snBtnT">Ainda não</span></button>
        </section>
+       <section class="block bang" id="bangBanner" hidden><div class="bh"><h3>Você venceu o jogo!</h3><span class="meta nebula">Big Bang criado</span></div><p class="small" style="margin:0">Você criou um universo novo. Obrigado por jogar! O jogo continua: dá para seguir juntando Poeira e completar todas as conquistas.</p></section>
+       <div class="kicker">Marcos da Supernova</div>
+       <div class="miles" id="milesList"></div>
+       <div class="kicker">Buraco Negro</div>
+       <p class="lockmsg" id="bhLock"><svg class="i"><use href="#i-lock"/></svg>Compre a “Constelação do Abismo” para liberar.</p>
+       <div id="bhBox" hidden>
+         <section class="block"><div class="bh"><h3 id="bhState">Buraco Negro</h3><span class="meta" id="bhInfo"></span></div><div class="track neb"><i id="bhFill"></i></div><p class="small" id="bhText" style="margin-bottom:0"></p></section>
+         <div class="cards" id="bhList" style="margin-top:14px"></div>
+       </div>
        <div class="kicker">Constelações</div>
        <div class="cards" id="consList"></div>
      </section>
@@ -550,7 +577,10 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
          <li>Compre <b>Velocidade</b>: deixa todos os geradores mais rápidos.</li>
          <li>Quando tiver 20 do maior gerador, faça uma <b>Expansão</b>: recomeça a produção, mas libera um gerador novo e dá ×2 em tudo.</li>
          <li>Com <b>1e40 pontos</b> você pode <b>Renascer</b> e ganhar <b class="brass">Estrelas</b>. Use-as na <b>árvore</b>: robôs, bônus, desafios e laboratório.</li>
-         <li>No fim da árvore, chegue no limite do universo e faça uma <b class="nebula">Supernova</b>.</li>
+         <li>Sobrou Estrela? Gaste na <b>Oficina</b>: melhorias que não têm fim.</li>
+         <li>No fim da árvore, chegue no limite do universo e faça uma <b class="nebula">Supernova</b>. Cada Supernova conta para os <b>Marcos</b>, que dão vantagens para sempre.</li>
+         <li>Com Poeira, compre Constelações e libere o <b class="nebula">Buraco Negro</b>, que acelera o tempo de vez em quando, sozinho.</li>
+         <li>O final do jogo é o <b class="nebula">Big Bang</b>, a última Constelação.</li>
        </ol>
        <div class="kicker">Os 4 jeitos de recomeçar (do menor para o maior)</div>
        <div class="ladder">
@@ -591,7 +621,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:650;margin:0;letter-spacing:-.0
 <script>
 // Economia pura do Ascensão Infinita (sem DOM). É embutida no HTML e também roda no robô de testes (node).
 const ECON=(()=>{'use strict';
-const CAP=1e300, RB_MIN=1e40, CASCADE=0.5;
+const CAP=1e300, RB_MIN=1e40;
 const GENS=[
  {name:'Faísca',plural:'Faíscas',icon:'sparkles',base:10,step:1e3},
  {name:'Lamparina',plural:'Lamparinas',icon:'lamp',base:100,step:1e4},
@@ -613,27 +643,37 @@ const TREE=[
  {k:'auto2',x:3,y:2,icon:'factory',name:'Robô Engenheiro',cost:6,needs:['auto1'],desc:'Compra os 4 geradores maiores sozinho.'},
  {k:'autoTick',x:4,y:2,icon:'cog',name:'Robô Relojoeiro',cost:4,needs:['auto1'],desc:'Compra Velocidade sozinho.'},
  {k:'momentum',x:6,y:2,icon:'hourglass',name:'Impulso',cost:6,needs:['off1'],desc:'Quanto mais tempo na vida atual, mais você ganha: ×(1 + minutos).'},
+ {k:'g2x',x:0,y:3,icon:'lamp',name:'Chama Dupla',cost:20,needs:['g1x'],desc:'Lamparinas e Lunetas produzem ×5.'},
  {k:'galaxyCheap',x:1,y:3,icon:'orbit',name:'Atalho Galáctico',cost:25,needs:['g1x','cascade'],desc:'Galáxias pedem 20 Estações Orbitais a menos.'},
  {k:'autoExp',x:3,y:3,icon:'rocket',name:'Robô Piloto',cost:30,needs:['auto2','autoTick'],desc:'Faz Expansões e Galáxias sozinho.'},
  {k:'starBoost',x:5,y:3,icon:'star',name:'Brilho Acumulado',cost:20,needs:['momentum'],desc:'O bônus das Estrelas ganhas fica mais forte (potência 0,7 em vez de 0,5).'},
+ {k:'attractor',x:6,y:3,icon:'comet',name:'Atrator de Meteoros',cost:15,needs:['momentum'],desc:'Chuvas de meteoros vêm 2× mais e valem ×5 em vez de ×3.'},
+ {k:'workshop',x:0,y:4,icon:'hammer',name:'Oficina Estelar',cost:150,needs:['g2x','galaxyCheap'],desc:'Libera a Oficina: melhorias sem fim compradas com Estrelas.'},
  {k:'headStart',x:2,y:4,icon:'rocket',name:'Começo Rápido',cost:80,needs:['galaxyCheap'],desc:'Toda vida e toda Galáxia já começam com 4 Expansões.'},
  {k:'chal',x:4,y:4,icon:'flag',name:'Portal dos Desafios',cost:60,needs:['autoExp'],desc:'Libera os Desafios: vidas difíceis com prêmios para sempre.'},
- {k:'forge',x:6,y:4,icon:'hammer',name:'Forja Estelar',cost:100,needs:['starBoost'],desc:'Renascer dá o dobro de Estrelas.'},
+ {k:'forge',x:6,y:4,icon:'star',name:'Forja Estelar',cost:100,needs:['starBoost'],desc:'Renascer dá o dobro de Estrelas.'},
  {k:'tick2',x:1,y:5,icon:'bolt',name:'Galáxias Densas',cost:300,needs:['headStart'],desc:'Cada Galáxia melhora a Velocidade em +0,03 em vez de +0,02.'},
  {k:'autoRb',x:3,y:5,icon:'refresh',name:'Robô Fênix',cost:400,needs:['chal'],desc:'Renasce sozinho quando ganharia 10% das Estrelas que você já juntou, ou quando chegar no limite do universo.'},
  {k:'research',x:5,y:5,icon:'flask',name:'Laboratório',cost:250,needs:['forge'],desc:'Libera as Pesquisas: melhoram sozinhas com o tempo, até offline.'},
- {k:'supernova',x:3,y:6,icon:'sun',name:'Coração da Estrela',cost:3000,needs:['autoRb','tick2','research'],desc:'Libera a Supernova, o renascimento gigante.'}
+ {k:'tick3',x:0,y:6,icon:'clock',name:'Engrenagem Mestra',cost:1500,needs:['tick2','workshop'],desc:'Velocidade +0,03 para sempre.'},
+ {k:'supernova',x:3,y:6,icon:'sun',name:'Coração da Estrela',cost:3000,needs:['autoRb','tick2','research'],desc:'Libera a Supernova, o renascimento gigante.'},
+ {k:'deepLab',x:6,y:6,icon:'flask',name:'Laboratório Profundo',cost:2000,needs:['research','forge'],desc:'Pesquisas andam 50% mais rápido.'}
 ];
 const ROBOTS=['auto1','auto2','autoTick','autoExp','autoRb'];
+// tier 1 pede o Portal; tier 2 pede 3 Supernovas
 const CH=[
- {id:'noTick',goal:1e80,name:'Relógio Parado',rule:'Velocidade não pode ser comprada.',reward:'Velocidade +0,01 para sempre.'},
- {id:'four',goal:1e60,name:'Só Quatro',rule:'Só existem os 4 primeiros geradores.',reward:'Expansões pedem 5 geradores a menos.'},
- {id:'noExp',goal:1e150,name:'Sem Expansão',rule:'Expansões liberam geradores, mas não dão bônus.',reward:'Faíscas produzem ×1.000.'},
- {id:'dark',goal:1e180,name:'Escuridão',rule:'Faíscas produzem 10.000× menos.',reward:'Todo o ganho ×5.'},
- {id:'costly',goal:1e200,name:'Inflação',rule:'Os preços sobem 10× mais rápido a cada 10 compras.',reward:'Os preços sobem mais devagar a cada 10 compras.'},
- {id:'noStars',goal:1e230,name:'Céu Apagado',rule:'O bônus das Estrelas fica desligado.',reward:'O bônus das Estrelas fica ainda mais forte (+0,1 de potência).'},
- {id:'oneGal',goal:1e260,name:'Galáxia Distante',rule:'Cada Galáxia pede o dobro de Estações Orbitais.',reward:'Você ganha 1 Galáxia grátis para sempre.'},
- {id:'noAuto',goal:1e290,name:'Sem Robôs',rule:'Todos os robôs ficam desligados.',reward:'Renascer dá +50% Estrelas.'}
+ {id:'noTick',tier:1,goal:1e120,name:'Relógio Parado',rule:'Velocidade não pode ser comprada.',reward:'Velocidade +0,01 para sempre.'},
+ {id:'four',tier:1,goal:1e70,name:'Só Quatro',rule:'Só existem os 4 primeiros geradores.',reward:'Expansões pedem 5 geradores a menos.'},
+ {id:'noExp',tier:1,goal:1e200,name:'Sem Expansão',rule:'Expansões liberam geradores, mas não dão bônus.',reward:'Faíscas produzem ×1.000.'},
+ {id:'dark',tier:1,goal:1e180,name:'Escuridão',rule:'Faíscas produzem 100 milhões de vezes menos.',reward:'Todo o ganho ×5.'},
+ {id:'costly',tier:1,goal:1e220,name:'Inflação',rule:'Os preços sobem 100× mais rápido a cada 10 compras.',reward:'Os preços sobem mais devagar a cada 10 compras.'},
+ {id:'noStars',tier:1,goal:1e250,name:'Céu Apagado',rule:'O bônus das Estrelas fica desligado.',reward:'O bônus das Estrelas fica ainda mais forte (+0,1 de potência).'},
+ {id:'oneGal',tier:1,goal:1e270,name:'Galáxia Distante',rule:'Cada Galáxia pede o dobro de Estações Orbitais.',reward:'Você ganha 1 Galáxia grátis para sempre.'},
+ {id:'noAuto',tier:1,goal:1e300,name:'Sem Robôs',rule:'Todos os robôs ficam desligados.',reward:'Renascer dá +50% Estrelas.'},
+ {id:'six',tier:2,goal:1e280,name:'Cascata Curta',rule:'Só existem os 6 primeiros geradores.',reward:'A cascata fica mais forte: +0,05.'},
+ {id:'frozen',tier:2,goal:1e260,name:'Universo Congelado',rule:'Sem Velocidade e sem Galáxias.',reward:'Velocidade +0,02 para sempre.'},
+ {id:'weak',tier:2,goal:1e290,name:'Estrelas Fracas',rule:'O bônus das Estrelas fica bem mais fraco.',reward:'Renascer dá ×3 Estrelas.'},
+ {id:'tiny',tier:2,goal:1e300,name:'Universo Pequeno',rule:'Expansões sem bônus e Faíscas 1 milhão de vezes mais fracas.',reward:'Supernova dá ×2 Poeira.'}
 ];
 const LAB=[
  {id:'gen',icon:'sparkles',name:'Lentes Polidas',base:2,desc:'Todos os geradores ×1,25 por nível.'},
@@ -641,33 +681,70 @@ const LAB=[
  {id:'star',icon:'star',name:'Astroquímica',base:6,desc:'Renascer dá +10% Estrelas por nível.'},
  {id:'off',icon:'moon',name:'Turno da Noite',base:3,max:5,desc:'+10% de ganho offline por nível.'},
  {id:'exp',icon:'layers',name:'Mapa Estelar',base:8,desc:'Cada Expansão vale +0,1 a mais por nível.'},
- {id:'dust',icon:'comet',name:'Coleta de Poeira',base:15,desc:'Supernova dá +10% Poeira por nível.',needSN:true}
+ {id:'casc',icon:'station',name:'Fluxo em Cascata',base:30,max:10,desc:'Cada gerador produz +1% a mais do gerador de baixo por nível.'},
+ {id:'dust',icon:'comet',name:'Coleta de Poeira',base:15,desc:'Supernova dá +10% Poeira por nível.',needSN:true},
+ {id:'bh',icon:'galaxy',name:'Gravidade Extrema',base:20,desc:'O Buraco Negro fica 10% mais forte por nível.',needBH:true}
 ];
 const CONS=[
- {id:'gen',icon:'sparkles',name:'Constelação do Fogo',max:50,price:l=>3**l,desc:'Todos os geradores ×10 por nível.'},
- {id:'star',icon:'star',name:'Constelação da Coroa',max:30,price:l=>2*3**l,desc:'Renascer dá ×2 Estrelas por nível.'},
+ {id:'gen',icon:'sparkles',name:'Constelação do Fogo',max:50,price:l=>Math.ceil(2*4**l),desc:'Todos os geradores ×10 por nível.'},
+ {id:'star',icon:'star',name:'Constelação da Coroa',max:30,price:l=>3*5**l,desc:'Renascer dá ×1,5 Estrelas por nível.'},
  {id:'tick',icon:'bolt',name:'Constelação do Relógio',max:20,price:l=>3*4**l,desc:'Velocidade +0,01 por nível.'},
+ {id:'dust',icon:'comet',name:'Constelação do Cometa',max:20,price:l=>10*5**l,desc:'Supernova dá ×1,25 Poeira por nível.'},
  {id:'slot',icon:'flask',name:'Constelação do Sábio',max:2,price:l=>10*5**l,desc:'+1 pesquisa ao mesmo tempo por nível.'},
- {id:'keep',icon:'scroll',name:'Constelação da Memória',max:1,price:()=>25,desc:'A Supernova não apaga mais a árvore de Estrelas.'},
- {id:'start',icon:'rocket',name:'Constelação da Partida',max:1,price:()=>15,desc:'Depois da Supernova, começa com 1.000 Estrelas.'}
+ {id:'start',icon:'rocket',name:'Constelação da Partida',max:1,price:()=>15,desc:'Depois da Supernova, começa com 1.000 Estrelas.'},
+ {id:'off',icon:'moon',name:'Constelação da Lua',max:1,price:()=>20,desc:'Com o jogo fechado você ganha 100%, por até 24 horas.'},
+ {id:'keep',icon:'scroll',name:'Constelação da Memória',max:1,price:()=>20,desc:'A Supernova não apaga mais a árvore de Estrelas.'},
+ {id:'bh',icon:'galaxy',name:'Constelação do Abismo',max:1,price:()=>30,desc:'Libera o Buraco Negro, que acelera o tempo de vez em quando.'},
+ {id:'bang',icon:'nova',name:'Big Bang',max:1,price:()=>3e5,desc:'O FINAL: cria um universo novo. Você vence o jogo (e pode continuar jogando). Todo o ganho ×1e10.'}
+];
+// Oficina Estelar: melhorias sem fim compradas com Estrelas
+const WORK=[
+ {id:'gen',icon:'sparkles',name:'Forja de Geradores',max:1e4,price:l=>200*4**l,desc:'Todos os geradores ×3 por nível.'},
+ {id:'star',icon:'star',name:'Prensa de Estrelas',max:1e4,price:l=>1000*6**l,desc:'Renascer dá ×1,5 Estrelas por nível.'},
+ {id:'tick',icon:'bolt',name:'Torno de Precisão',max:20,price:l=>500*5**l,desc:'Velocidade +0,01 por nível.'},
+ {id:'exp',icon:'expand',name:'Alargador',max:20,price:l=>300*5**l,desc:'Cada Expansão vale +0,25 a mais por nível.'},
+ {id:'casc',icon:'station',name:'Bomba de Cascata',max:10,price:l=>5000*20**l,desc:'Cada gerador produz +5% a mais do gerador de baixo por nível.'}
+];
+const BHUP=[
+ {id:'pow',name:'Massa',max:30,price:l=>5*3**l,desc:'O tempo acelera +2× a mais.'},
+ {id:'dur',name:'Horizonte',max:20,price:l=>8*3**l,desc:'Fica ativo +2 segundos.'},
+ {id:'per',name:'Rotação',max:15,price:l=>10*3**l,desc:'Ativa 10% mais vezes.'}
+];
+const MILES=[
+ {n:1,desc:'Os robôs da árvore continuam depois de cada Supernova.'},
+ {n:3,desc:'Libera os Desafios da Supernova.'},
+ {n:5,desc:'+1 vaga no Laboratório.'},
+ {n:10,desc:'Robô Supernova: explode sozinho quando chega no limite.'},
+ {n:25,desc:'Pesquisas andam 2× mais rápido.'},
+ {n:50,desc:'Supernova dá ×2 Poeira.'}
 ];
 
 const zeros=()=>GENS.map(()=>0);
-function fresh(now=Date.now()){return {v:7,points:10,amt:zeros(),bought:zeros(),tick:0,exp:0,gal:0,runTime:0,
+const map0=a=>Object.fromEntries(a.map(x=>[x.id,0]));
+function fresh(now=Date.now()){return {v:8,points:10,amt:zeros(),bought:zeros(),tick:0,exp:0,gal:0,runTime:0,
  stars:0,starsTotal:0,starsLife:0,rebirths:0,perm:Object.fromEntries(TREE.map(t=>[t.k,false])),chDone:[],chActive:null,
- dust:0,dustTotal:0,supernovas:0,cons:Object.fromEntries(CONS.map(c=>[c.id,0])),
- lab:{lv:Object.fromEntries(LAB.map(r=>[r.id,0])),prog:Object.fromEntries(LAB.map(r=>[r.id,0])),active:[]},
+ dust:0,dustTotal:0,supernovas:0,cons:map0(CONS),work:map0(WORK),bh:{lv:map0(BHUP),t:0},
+ lab:{lv:map0(LAB),prog:map0(LAB),active:[]},
  ach:[],best:0,bestRate:0,total:0,played:0,fastest:0,meteors:0,meteorNext:now+300000,meteorUntil:0,hist:[],seenHelp:false,lastTick:now}}
 
-const ch=s=>s.chActive, won=(s,id)=>s.chDone.includes(id);
+const ch=s=>s.chActive, won=(s,id)=>s.chDone.includes(id), mile=(s,n)=>s.supernovas>=n;
 const robotsOn=s=>ch(s)!=='noAuto';
 const meteorOn=(s,now=Date.now())=>now<s.meteorUntil;
-const unlockedGens=s=>ch(s)==='four'?4:Math.min(8,4+s.exp);
-const galaxies=s=>s.gal+(won(s,'oneGal')?1:0);
-function tickBase(s){return (s.perm.tickA?1.15:1.125)+galaxies(s)*(s.perm.tick2?.03:.02)+(won(s,'noTick')?.01:0)+s.lab.lv.tick*.005+s.cons.tick*.01}
-function expMult(s){return ch(s)==='noExp'?1:(s.perm.cascade?2.5:2)+s.lab.lv.exp*.1}
-function starPow(s){return (s.perm.starBoost?.7:.5)+(won(s,'noStars')?.1:0)}
+const meteorMul=s=>s.perm.attractor?5:3;
+const unlockedGens=s=>ch(s)==='four'?4:Math.min(ch(s)==='six'?6:8,4+s.exp);
+const galaxies=s=>ch(s)==='frozen'?0:s.gal+(won(s,'oneGal')?1:0);
+const noTick=s=>ch(s)==='noTick'||ch(s)==='frozen';
+function tickBase(s){return (s.perm.tickA?1.15:1.125)+galaxies(s)*(s.perm.tick2?.03:.02)+(won(s,'noTick')?.01:0)+(won(s,'frozen')?.02:0)+(s.perm.tick3?.03:0)+s.lab.lv.tick*.005+s.cons.tick*.01+s.work.tick*.01}
+function expMult(s){return ch(s)==='noExp'||ch(s)==='tiny'?1:(s.perm.cascade?2.5:2)+s.lab.lv.exp*.1+s.work.exp*.25}
+function cascade(s){return .5+s.work.casc*.05+s.lab.lv.casc*.01+(won(s,'six')?.05:0)}
+function starPow(s){return ch(s)==='weak'?.2:(s.perm.starBoost?.7:.5)+(won(s,'noStars')?.1:0)}
 function starBonus(s){return ch(s)==='noStars'?1:Math.pow(1+s.starsTotal,starPow(s))}
+// Buraco Negro: a cada "período" segundos, fica ativo "duração" segundos acelerando o tempo
+const bhOpen=s=>s.cons.bh>0;
+const bhPower=s=>(5+2*s.bh.lv.pow)*(1+s.lab.lv.bh*.1);
+const bhDur=s=>10+2*s.bh.lv.dur;
+const bhPeriod=s=>Math.max(30,120*Math.pow(.9,s.bh.lv.per));
+const bhActive=s=>bhOpen(s)&&(s.bh.t%bhPeriod(s))<bhDur(s);
 // fatores globais com rótulo, para a tela "Seu ganho, explicado"
 function factors(s,now=Date.now()){const f=[];const p=s.perm;
  f.push(['Velocidade ('+s.tick+'×)',Math.pow(tickBase(s),s.tick)]);
@@ -675,52 +752,62 @@ function factors(s,now=Date.now()){const f=[];const p=s.perm;
  if(p.seed)f.push(['Semente Eterna',2]);
  f.push(['Estrelas juntadas',starBonus(s)]);
  if(s.ach.length)f.push(['Conquistas ('+s.ach.length+')',1+s.ach.length*.05]);
+ if(s.work.gen)f.push(['Oficina: Forja de Geradores',Math.pow(3,s.work.gen)]);
  if(s.lab.lv.gen)f.push(['Pesquisa: Lentes Polidas',Math.pow(1.25,s.lab.lv.gen)]);
  if(s.cons.gen)f.push(['Constelação do Fogo',Math.pow(10,s.cons.gen)]);
  if(s.dustTotal)f.push(['Poeira Estelar juntada',1+s.dustTotal]);
+ if(s.cons.bang)f.push(['Big Bang',1e10]);
  if(won(s,'dark'))f.push(['Prêmio: Escuridão',5]);
  if(p.momentum)f.push(['Impulso',1+s.runTime/60]);
- if(meteorOn(s,now))f.push(['Chuva de meteoros',3]);
+ if(meteorOn(s,now))f.push(['Chuva de meteoros',meteorMul(s)]);
  return f.filter(x=>x[1]!==1)}
 function globalMult(s,now){let m=1;for(const [,v] of factors(s,now))m*=v;return m}
-function genSelf(s,k){let m=Math.pow(2,Math.floor(s.bought[k]/10));if(k===0){if(s.perm.g1x)m*=10;if(won(s,'noExp'))m*=1e3;if(ch(s)==='dark')m*=1e-4}return m}
+function genSelf(s,k){let m=Math.pow(2,Math.floor(s.bought[k]/10));
+ if(k===0){if(s.perm.g1x)m*=10;if(won(s,'noExp'))m*=1e3;if(ch(s)==='dark')m*=1e-8;if(ch(s)==='tiny')m*=1e-6}
+ if((k===1||k===2)&&s.perm.g2x)m*=5;return m}
 function genMult(s,k,g){return Math.min(CAP,genSelf(s,k)*g)}
 function rate(s,now){return Math.min(CAP,s.amt[0]*genMult(s,0,globalMult(s,now)))}
-function genStep(s,k){const st=GENS[k].step*(ch(s)==='costly'?10:1);return won(s,'costly')?Math.pow(st,.9):st}
+function genStep(s,k){const st=GENS[k].step*(ch(s)==='costly'?100:1);return won(s,'costly')?Math.pow(st,.9):st}
 function genPrice(s,k,b=s.bought[k]){return GENS[k].base*Math.pow(genStep(s,k),Math.floor(b/10))}
 const tickPrice=s=>1e3*Math.pow(10,s.tick);
-function expNeed(s){const u=unlockedGens(s),c=won(s,'four')?5:0;if(ch(s)==='four')return {gen:3,n:20+15*s.exp-c};return u<8?{gen:u-1,n:20-c}:{gen:7,n:20+15*(s.exp-4)-c}}
+function expNeed(s){const u=unlockedGens(s),c=won(s,'four')?5:0,top=ch(s)==='four'?4:ch(s)==='six'?6:8;
+ if(u<top)return {gen:u-1,n:20-c};return {gen:top-1,n:20+15*(s.exp-(top-4))-c}}
 function galNeed(s){return Math.max(20,80+(ch(s)==='oneGal'?120:60)*s.gal-(s.perm.galaxyCheap?20:0))}
 const canExpand=s=>{const e=expNeed(s);return s.bought[e.gen]>=e.n};
-const canGalaxy=s=>ch(s)!=='four'&&unlockedGens(s)===8&&s.bought[7]>=galNeed(s);
-function starMul(s){return (s.perm.forge?2:1)*(1+s.lab.lv.star*.1)*Math.pow(2,s.cons.star)*(won(s,'noAuto')?1.5:1)}
+const canGalaxy=s=>!['four','six','frozen'].includes(ch(s))&&unlockedGens(s)===8&&s.bought[7]>=galNeed(s);
+function starMul(s){return (s.perm.forge?2:1)*(1+s.lab.lv.star*.1)*Math.pow(1.5,s.cons.star)*Math.pow(1.5,s.work.star)*(won(s,'noAuto')?1.5:1)*(won(s,'weak')?3:1)}
 function starGain(s){if(s.points<RB_MIN)return 0;return Math.floor(Math.pow(Math.log10(Math.min(s.points,CAP))/40,2)*starMul(s))}
 const nextStarAt=s=>{const want=starGain(s)+1;return Math.pow(10,40*Math.sqrt(want/starMul(s)))};
 const canSupernova=s=>s.perm.supernova&&s.points>=CAP&&!ch(s);
-function dustGain(s){return Math.floor(Math.sqrt(s.starsLife/100)*(1+s.lab.lv.dust*.1))}
-const offlinePct=s=>Math.min(1,(s.perm.off1?.5:0)+s.lab.lv.off*.1);
-const labSlots=s=>s.perm.research?1+s.cons.slot:0;
+function dustMul(s){return (1+s.lab.lv.dust*.1)*Math.pow(1.25,s.cons.dust)*(won(s,'tiny')?2:1)*(mile(s,50)?2:1)}
+function dustGain(s){return Math.floor(Math.pow(s.starsLife/20,.35)*dustMul(s))}
+const offlinePct=s=>s.cons.off?1:Math.min(1,(s.perm.off1?.5:0)+s.lab.lv.off*.1);
+const offlineHours=s=>s.cons.off?24:8;
+const labSlots=s=>s.perm.research?1+s.cons.slot+(mile(s,5)?1:0):0;
+const labSpeed=s=>(s.perm.deepLab?1.5:1)*(mile(s,25)?2:1);
 const labDur=(r,l)=>r.base*60*Math.pow(1.5,l);
+const labLocked=(s,r)=>(r.needSN&&!s.supernovas)||(r.needBH&&!bhOpen(s));
 
 // ---------- avanço do tempo ----------
-function step(s,dt,now=Date.now()){const g=globalMult(s,now),u=unlockedGens(s);
- for(let k=u-1;k>=1;k--)s.amt[k-1]=Math.min(CAP,s.amt[k-1]+s.amt[k]*genMult(s,k,g)*CASCADE*dt);
- const r=Math.min(CAP,s.amt[0]*genMult(s,0,g));s.points=Math.min(CAP,s.points+r*dt);s.total=Math.min(CAP,s.total+r*dt);
+function step(s,dt,now=Date.now()){let dte=dt;if(bhOpen(s)){if(bhActive(s))dte=dt*bhPower(s);s.bh.t+=dt}
+ const g=globalMult(s,now),u=unlockedGens(s),c=cascade(s);
+ for(let k=u-1;k>=1;k--)s.amt[k-1]=Math.min(CAP,s.amt[k-1]+s.amt[k]*genMult(s,k,g)*c*dte);
+ const r=Math.min(CAP,s.amt[0]*genMult(s,0,g));s.points=Math.min(CAP,s.points+r*dte);s.total=Math.min(CAP,s.total+r*dte);
  s.runTime+=dt;s.played+=dt;if(s.points>s.best)s.best=s.points;if(r>s.bestRate)s.bestRate=r;return r}
-function labStep(s,dt){const done=[];for(const id of s.lab.active.slice(0,labSlots(s))){const r=LAB.find(x=>x.id===id);if(r.max&&s.lab.lv[id]>=r.max)continue;s.lab.prog[id]+=dt;
+function labStep(s,dt){const done=[],sp=labSpeed(s);for(const id of s.lab.active.slice(0,labSlots(s))){const r=LAB.find(x=>x.id===id);if((r.max&&s.lab.lv[id]>=r.max)||labLocked(s,r))continue;s.lab.prog[id]+=dt*sp;
  while(s.lab.prog[id]>=labDur(r,s.lab.lv[id])&&!(r.max&&s.lab.lv[id]>=r.max)){s.lab.prog[id]-=labDur(r,s.lab.lv[id]);s.lab.lv[id]++;done.push(r)}}return done}
 
 // ---------- compras ----------
 function planGen(s,k,budget=s.points){if(k>=unlockedGens(s))return {n:0,cost:0};let n=0,cost=0,b=s.bought[k];
  for(let i=0;i<400;i++){const p=genPrice(s,k,b),left=10-b%10,can=Math.min(left,Math.floor((budget-cost)/p));if(can<=0)break;n+=can;cost+=can*p;b+=can;if(can<left)break}return {n,cost}}
 function buyGen(s,k){const p=planGen(s,k);if(!p.n)return 0;s.points-=p.cost;s.amt[k]+=p.n;s.bought[k]+=p.n;return p.n}
-function planTick(s){if(ch(s)==='noTick')return {n:0,cost:0};let n=0,cost=0;while(n<500){const p=1e3*Math.pow(10,s.tick+n);if(cost+p>s.points)break;cost+=p;n++}return {n,cost}}
+function planTick(s){if(noTick(s))return {n:0,cost:0};let n=0,cost=0;while(n<500){const p=1e3*Math.pow(10,s.tick+n);if(cost+p>s.points)break;cost+=p;n++}return {n,cost}}
 function buyTick(s){const p=planTick(s);if(!p.n)return 0;s.points-=p.cost;s.tick+=p.n;return p.n}
 function resetLife(s){s.points=10;s.amt=zeros();s.bought=zeros();s.tick=0;s.runTime=0}
 function expand(s){if(!canExpand(s))return false;s.exp++;resetLife(s);return true}
 function galaxy(s){if(!canGalaxy(s))return false;s.gal++;s.exp=s.perm.headStart?4:0;resetLife(s);return true}
 const chGoal=s=>s.chActive?CH.find(c=>c.id===s.chActive).goal:RB_MIN;
-const chOpen=(s,c)=>{const i=CH.indexOf(c);return s.perm.chal&&(i===0||won(s,CH[i-1].id))};
+function chOpen(s,c){const tier=CH.filter(x=>x.tier===c.tier),i=tier.indexOf(c);if(c.tier===1&&!s.perm.chal)return false;if(c.tier===2&&!mile(s,3))return false;return i===0||won(s,tier[i-1].id)}
 const canRebirth=s=>s.points>=chGoal(s);
 function rebirth(s){if(!canRebirth(s))return null;const g=starGain(s),wasCh=s.chActive,t=s.runTime;
  if(wasCh&&!won(s,wasCh))s.chDone.push(wasCh);s.chActive=null;
@@ -735,22 +822,26 @@ function supernova(s){if(!canSupernova(s))return 0;const d=dustGain(s);s.dust+=d
  if(!s.cons.keep)for(const t of TREE)if(!ROBOTS.includes(t.k))s.perm[t.k]=false;
  s.exp=s.perm.headStart?4:0;s.gal=0;resetLife(s);return d}
 function buyCons(s,id){const c=CONS.find(x=>x.id===id);const l=s.cons[id];if(!c||l>=c.max||s.dust<c.price(l))return false;s.dust-=c.price(l);s.cons[id]++;return true}
-function setLab(s,id){const r=LAB.find(x=>x.id===id);if(!r||!labSlots(s)||(r.needSN&&!s.supernovas))return false;if(s.lab.active.includes(id)){s.lab.active=s.lab.active.filter(x=>x!==id);return true}
+function planWork(s,id){const w=WORK.find(x=>x.id===id);if(!w||!s.perm.workshop)return {n:0,cost:0};let n=0,cost=0;while(s.work[id]+n<w.max&&n<200){const p=w.price(s.work[id]+n);if(cost+p>s.stars)break;cost+=p;n++}return {n,cost}}
+function buyWork(s,id){const p=planWork(s,id);if(!p.n)return 0;s.stars-=p.cost;s.work[id]+=p.n;return p.n}
+function buyBH(s,id){const u=BHUP.find(x=>x.id===id);if(!u||!bhOpen(s))return false;const l=s.bh.lv[id];if(l>=u.max||s.dust<u.price(l))return false;s.dust-=u.price(l);s.bh.lv[id]++;return true}
+function setLab(s,id){const r=LAB.find(x=>x.id===id);if(!r||!labSlots(s)||labLocked(s,r))return false;if(s.lab.active.includes(id)){s.lab.active=s.lab.active.filter(x=>x!==id);return true}
  s.lab.active.push(id);while(s.lab.active.length>labSlots(s))s.lab.active.shift();return true}
 
 // robôs (rodam a cada passo)
-function autoRun(s){if(!robotsOn(s))return;const p=s.perm;
- if(p.autoExp){if(canGalaxy(s))galaxy(s);else if(canExpand(s)&&(unlockedGens(s)<8||!canGalaxySoon(s)))expand(s)}
+function autoRun(s){if(!robotsOn(s))return null;const p=s.perm;
+ if(mile(s,10)&&canSupernova(s))return {nova:supernova(s)};
+ if(p.autoExp){if(canGalaxy(s))galaxy(s);else if(canExpand(s))expand(s)}
  if(p.autoTick)buyTick(s);
  for(let k=unlockedGens(s)-1;k>=0;k--){if((k>=4&&p.auto2)||(k<4&&p.auto1))buyGen(s,k)}
  if(s.chActive&&canRebirth(s))return rebirth(s);
  if(p.autoRb&&!s.chActive&&s.points>=RB_MIN&&!canSupernova(s)){const g=starGain(s);if(s.points>=CAP||g>=Math.max(1,s.starsTotal*.1))return rebirth(s)}
  return null}
-function canGalaxySoon(s){return false}
 
-return {chGoal,chOpen,canRebirth,CAP,RB_MIN,CASCADE,GENS,TREE,CH,LAB,CONS,ROBOTS,fresh,ch,won,robotsOn,meteorOn,unlockedGens,galaxies,tickBase,expMult,starBonus,starPow,factors,globalMult,genSelf,genMult,rate,genPrice,tickPrice,
- expNeed,galNeed,canExpand,canGalaxy,starMul,starGain,nextStarAt,canSupernova,dustGain,offlinePct,labSlots,labDur,step,labStep,planGen,buyGen,planTick,buyTick,resetLife,expand,galaxy,rebirth,nodeState,buyNode,
- startChallenge,quitChallenge,supernova,buyCons,setLab,autoRun};
+return {chGoal,chOpen,canRebirth,CAP,RB_MIN,GENS,TREE,CH,LAB,CONS,WORK,BHUP,MILES,ROBOTS,fresh,ch,won,mile,robotsOn,meteorOn,meteorMul,unlockedGens,galaxies,noTick,tickBase,expMult,cascade,starBonus,starPow,
+ bhOpen,bhPower,bhDur,bhPeriod,bhActive,factors,globalMult,genSelf,genMult,rate,genPrice,tickPrice,
+ expNeed,galNeed,canExpand,canGalaxy,starMul,starGain,nextStarAt,canSupernova,dustMul,dustGain,offlinePct,offlineHours,labSlots,labSpeed,labDur,labLocked,step,labStep,planGen,buyGen,planTick,buyTick,resetLife,expand,galaxy,rebirth,nodeState,buyNode,
+ startChallenge,quitChallenge,supernova,buyCons,planWork,buyWork,buyBH,setLab,autoRun};
 })();
 if(typeof module!=='undefined')module.exports=ECON;
 
@@ -773,7 +864,7 @@ const setText=(el,t)=>{if(el&&el.textContent!==t)el.textContent=t};
 const logp=(p,goal)=>Math.min(1,Math.log10(Math.max(1,p))/Math.log10(goal));
 
 /* ---------- estado ---------- */
-function clean(v){const s=E.fresh();if(!v||typeof v!=='object'||v.v!==7)return s;
+function clean(v){const s=E.fresh();if(!v||typeof v!=='object'||(v.v!==7&&v.v!==8))return s;
  const num=(x,min,max,d=min)=>{x=Number(x);return Number.isFinite(x)?Math.max(min,Math.min(max,x)):d};
  s.points=num(v.points,0,E.CAP,10);for(const k of ['amt','bought'])if(Array.isArray(v[k]))s[k]=E.GENS.map((_,i)=>num(v[k][i],0,E.CAP));
  s.bought=s.bought.map(Math.floor);
@@ -782,6 +873,7 @@ function clean(v){const s=E.fresh();if(!v||typeof v!=='object'||v.v!==7)return s
  for(const k of Object.keys(s.perm))s.perm[k]=!!v.perm?.[k];
  for(const c of E.CONS)s.cons[c.id]=Math.floor(num(v.cons?.[c.id],0,c.max));
  for(const r of E.LAB){s.lab.lv[r.id]=Math.floor(num(v.lab?.lv?.[r.id],0,1e4));s.lab.prog[r.id]=num(v.lab?.prog?.[r.id],0,1e12)}
+ for(const w of E.WORK)s.work[w.id]=Math.floor(num(v.work?.[w.id],0,w.max));for(const u of E.BHUP)s.bh.lv[u.id]=Math.floor(num(v.bh?.lv?.[u.id],0,u.max));s.bh.t=num(v.bh?.t,0,1e12);
  s.lab.active=Array.isArray(v.lab?.active)?v.lab.active.filter(id=>E.LAB.some(r=>r.id===id)):[];
  const chIds=new Set(E.CH.map(c=>c.id));s.chDone=Array.isArray(v.chDone)?[...new Set(v.chDone.filter(x=>chIds.has(x)))]:[];s.chActive=chIds.has(v.chActive)?v.chActive:null;
  const achIds=new Set(ACH.map(a=>a.id));s.ach=Array.isArray(v.ach)?[...new Set(v.ach.filter(x=>achIds.has(x)))]:[];
@@ -837,6 +929,16 @@ const ACH=[
  A('met1','comet','Olhe para cima','Veja uma chuva de meteoros',s=>s.meteors>=1),
  A('met25','comet','Caçador de meteoros','Veja 25 chuvas de meteoros',s=>s.meteors>=25),
  A('off','moon','Boa noite','Compre Sono Produtivo',s=>s.perm.off1),
+ A('w10','hammer','Artesão','Some 10 níveis na Oficina',s=>Object.values(s.work).reduce((a,b)=>a+b,0)>=10),
+ A('w50','hammer','Mestre ferreiro','Some 50 níveis na Oficina',s=>Object.values(s.work).reduce((a,b)=>a+b,0)>=50),
+ A('casc75','station','Rio de luz','Cascata em 0,75 ou mais',s=>E.cascade(s)>=.75),
+ A('bh','galaxy','Horizonte de eventos','Libere o Buraco Negro',s=>s.cons.bh>0),
+ A('bh10','galaxy','Singularidade','Some 10 melhorias no Buraco Negro',s=>Object.values(s.bh.lv).reduce((a,b)=>a+b,0)>=10),
+ A('m10','nova','Marco 10','Chegue no Marco de 10 Supernovas',s=>s.supernovas>=10),
+ A('sc1','flag','Além do limite','Vença um Desafio da Supernova',s=>E.CH.some(c=>c.tier===2&&s.chDone.includes(c.id))),
+ A('sc4','flag','Lenda cósmica','Vença os 4 Desafios da Supernova',s=>E.CH.filter(c=>c.tier===2).every(c=>s.chDone.includes(c.id))),
+ A('d1e5','comet','Oceano de poeira','Junte 100 mil de Poeira',s=>s.dustTotal>=1e5),
+ A('bang','nova','Big Bang','Vença o jogo',s=>s.cons.bang>0),
  A('h1','clock','Dedicado','Jogue por 1 hora',s=>s.played>=3600),
  A('h10','clock','Astrônomo de verdade','Jogue por 10 horas',s=>s.played>=36000)
 ];
@@ -921,11 +1023,16 @@ $('tiBuy').addEventListener('click',()=>buyNode(selNode));
 E.CH.forEach((c,i)=>{const el=document.createElement('article');el.className='chal';el.id='chal-'+c.id;
  el.innerHTML='<span class="cn num"></span><div><h3></h3><dl><dt>Regra</dt><dd class="rule"></dd><dt>Meta</dt><dd></dd><dt>Prêmio</dt><dd class="rew"></dd></dl></div><button class="buy" type="button"></button>';
  el.querySelector('.cn').textContent=i+1;el.querySelector('h3').textContent=c.name;const dd=el.querySelectorAll('dd');dd[0].textContent=c.rule;dd[1].textContent='Chegar em '+fmt(c.goal)+' pontos';dd[2].textContent=c.reward;
- const btn=el.querySelector('.buy');btn.addEventListener('click',()=>armed(btn,'Toque de novo: sua vida recomeça',()=>{if(E.startChallenge(S,c.id)){toast('flag','Desafio: '+c.name,'Regra: '+c.rule+' Meta: '+fmt(c.goal)+' pontos.');save();go('home')}}));refs['chal-'+c.id]={el,btn};$('chalList').append(el)});
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>armed(btn,'Toque de novo: sua vida recomeça',()=>{if(E.startChallenge(S,c.id)){toast('flag','Desafio: '+c.name,'Regra: '+c.rule+' Meta: '+fmt(c.goal)+' pontos.');save();go('home')}}));refs['chal-'+c.id]={el,btn};$(c.tier===1?'chalList':'chal2List').append(el)});
+E.WORK.forEach(w=>{const el=plaque('work-'+w.id,w.icon,w.name,w.desc,'<button class="buy" type="button" style="margin-top:14px"></button><p class="note"></p>');el.classList.add('work');
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>act(()=>E.buyWork(S,w.id),n=>{fxAt(btn,w.name+' +'+n,[C.brass,C.vellum]);toast(w.icon,w.name+' nível '+S.work[w.id],w.desc)}));refs['work-'+w.id]=el;$('workList').append(el)});
+E.BHUP.forEach(u=>{const el=plaque('bhu-'+u.id,'galaxy',u.name,u.desc,'<button class="buy" type="button" style="margin-top:14px"></button>');el.classList.add('bhu');
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.buyBH(S,u.id)){fxAt(btn,u.name,[C.nebula,C.vellum]);save();render()}});refs['bhu-'+u.id]=el;$('bhList').append(el)});
+E.MILES.forEach(m=>{const d=document.createElement('div');d.className='mile-row';d.id='mile-'+m.n;d.innerHTML='<b class="num"></b><span></span>';d.querySelector('b').textContent=m.n;d.querySelector('span').textContent=m.desc;$('milesList').append(d)});
 E.LAB.forEach(r=>{const el=plaque('lab-'+r.id,r.icon,r.name,r.desc,'<div class="track neb"><i></i></div><p class="note"></p><button class="buy" type="button"></button>');el.classList.add('lab');
  const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.setLab(S,r.id)){save();render()}});refs['lab-'+r.id]=el;$('labList').append(el)});
 E.CONS.forEach(c=>{const el=plaque('cons-'+c.id,c.icon,c.name,c.desc,'<button class="buy" type="button" style="margin-top:14px"></button><p class="note"></p>');el.classList.add('cons');
- const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.buyCons(S,c.id)){fxAt(btn,c.name,[C.nebula,C.vellum]);toast(c.icon,c.name+' nível '+S.cons[c.id],c.desc);save();render()}});refs['cons-'+c.id]=el;$('consList').append(el)});
+ const btn=el.querySelector('.buy');btn.addEventListener('click',()=>{if(E.buyCons(S,c.id)){if(c.id==='bang'){bigFx('nova','BIG BANG!');toast('trophy','VOCÊ VENCEU O JOGO!','Você criou um universo novo. Todo o ganho ×1e10. Pode continuar jogando!')}fxAt(btn,c.name,[C.nebula,C.vellum]);toast(c.icon,c.name+' nível '+S.cons[c.id],c.desc);save();render()}});refs['cons-'+c.id]=el;$('consList').append(el)});
 for(const a of ACH){const el=document.createElement('div');el.className='ach';el.id='ach-'+a.id;el.innerHTML=ico(a.icon)+'<div><b></b><small></small></div>';el.querySelector('b').textContent=a.name;el.querySelector('small').textContent=a.desc;$('achList').append(el)}
 ['Expansão','Galáxia','Renascer','Supernova'].forEach(n=>{const d=document.createElement('div');d.innerHTML='<b class="num">0</b>';d.append(n);$('ladder').append(d)});
 
@@ -941,7 +1048,7 @@ function renderGens(){const g=E.globalMult(S),u=E.unlockedGens(S);let can=0;
   setText(r.gd,i===0?'Produz pontos.':'Produz '+E.GENS[i-1].plural+'.');
   const b=S.bought[i];setText(r.own,fmt(S.amt[i]));setText(r.ownS,'comprados: '+fmt(b));
   r.mf.style.transform='scaleX('+(b%10)/10+')';setText(r.mt,'×2 a cada 10 ('+(b%10)+'/10) · agora ×'+fmt(E.genSelf(S,i)));
-  const out=S.amt[i]*E.genMult(S,i,g)*(i?E.CASCADE:1);setText(r.out,'+'+fmt(out)+'/s');setText(r.outS,i===0?'pontos por segundo':E.GENS[i-1].plural+' por segundo');
+  const out=S.amt[i]*E.genMult(S,i,g)*(i?E.cascade(S):1);setText(r.out,'+'+fmt(out)+'/s');setText(r.outS,i===0?'pontos por segundo':E.GENS[i-1].plural+' por segundo');
   const p=E.planGen(S,i),price=E.genPrice(S,i);r.el.classList.toggle('can',p.n>0);r.btn.disabled=!p.n;if(p.n)can++;
   setText(r.btn,p.n?(p.n>1?'Comprar ×'+p.n+'\npor '+fmt(p.cost):'Comprar por '+fmt(price)):'Custa '+fmt(price)+'\n'+waitFor(price))});
  // velocidade
@@ -968,24 +1075,33 @@ function renderTree(){let can=0;
  setText($('tiName'),t.name);setText($('tiDesc'),t.desc);setText($('tiCost'),stars(t.cost));setText($('tiNeeds'),t.needs.length?t.needs.map(n=>E.TREE.find(x=>x.k===n).name+(S.perm[n]?' ✓':'')).join(', '):'Nada, é a raiz da árvore');
  const btn=$('tiBuy');btn.disabled=st!=='can';setText(btn,st==='owned'?'Você já tem':st==='locked'?'Compre antes o que ela precisa':st==='open'?'Faltam '+stars(t.cost-S.stars):'Comprar por '+stars(t.cost));
  return can}
-function renderChal(){let c=0;$('chalLock').hidden=S.perm.chal;
+function renderChal(){let c=0;$('chalLock').hidden=S.perm.chal;$('chal2Lock').hidden=E.mile(S,3);
  E.CH.forEach(x=>{const r=refs['chal-'+x.id],won=E.won(S,x.id),active=S.chActive===x.id,open=E.chOpen(S,x);
   r.el.classList.toggle('done',won);r.el.classList.toggle('active',active);r.el.classList.toggle('locked',!open);
-  r.btn.disabled=!open||!!S.chActive;if(!r.btn.dataset.armed)setText(r.btn,active?'Em andamento':!open?(S.perm.chal?'Vença o anterior':'Bloqueado'):S.chActive?'Termine o desafio atual':won?'Vencido · jogar de novo':'Começar desafio');
+  r.btn.disabled=!open||!!S.chActive;if(!r.btn.dataset.armed)setText(r.btn,active?'Em andamento':!open?(x.tier===2?(E.mile(S,3)?'Vença o anterior':'Precisa de 3 Supernovas'):S.perm.chal?'Vença o anterior':'Bloqueado'):S.chActive?'Termine o desafio atual':won?'Vencido · jogar de novo':'Começar desafio');
   if(open&&!won&&!S.chActive)c++});return c}
-function renderLab(){$('labLock').hidden=S.perm.research;$('labList').hidden=!S.perm.research;setText($('labSlots'),S.perm.research?'Pesquisando '+S.lab.active.slice(0,E.labSlots(S)).length+' de '+E.labSlots(S)+' ao mesmo tempo.':'');
- for(const r of E.LAB){const el=refs['lab-'+r.id],lv=S.lab.lv[r.id],on=S.lab.active.slice(0,E.labSlots(S)).includes(r.id),dur=E.labDur(r,lv),max=r.max&&lv>=r.max,locked=r.needSN&&!S.supernovas;
+function renderLab(){$('labLock').hidden=S.perm.research;$('labList').hidden=!S.perm.research;setText($('labSlots'),S.perm.research?'Pesquisando '+S.lab.active.slice(0,E.labSlots(S)).length+' de '+E.labSlots(S)+' ao mesmo tempo. Velocidade das pesquisas: ×'+fmt(E.labSpeed(S))+'.':'');
+ for(const r of E.LAB){const el=refs['lab-'+r.id],lv=S.lab.lv[r.id],on=S.lab.active.slice(0,E.labSlots(S)).includes(r.id),dur=E.labDur(r,lv),max=r.max&&lv>=r.max,locked=E.labLocked(S,r);
   el.classList.toggle('active',on);el.classList.toggle('locked',!!locked);setText(el.querySelector('.lv'),'Nível '+lv+(r.max?'/'+r.max:''));el.querySelector('.track i').style.transform='scaleX('+(max?1:Math.min(1,S.lab.prog[r.id]/dur))+')';
-  setText(el.querySelector('.note'),max?'Nível máximo.':locked?'Libera depois da primeira Supernova.':'Próximo nível em '+fmtTime(Math.max(0,dur-S.lab.prog[r.id]))+(on?'':' (parado)')+'.');
+  setText(el.querySelector('.note'),max?'Nível máximo.':locked?(r.needBH?'Libera com o Buraco Negro.':'Libera depois da primeira Supernova.'):'Próximo nível em '+fmtTime(Math.max(0,dur-S.lab.prog[r.id]))+(on?'':' (parado)')+'.');
   const b=el.querySelector('.buy');b.disabled=!!locked||max;b.classList.toggle('on',on);setText(b,max?'Completo':on?'Pesquisando · toque para parar':'Pesquisar este')}}
 function renderNova(){const open=S.perm.supernova||S.supernovas>0;$('novaLock').hidden=open;setText($('dustInfo'),fmt(S.dust));
  setText($('dustTxt'),'Poeira juntada: '+fmt(S.dustTotal)+'. Bônus em tudo: ×'+fmt(1+S.dustTotal)+'.');
  const can=E.canSupernova(S),d=E.dustGain(S);setText($('snCount'),S.supernovas?S.supernovas+' Supernovas feitas':'');$('snFill').style.transform='scaleX('+logp(S.points,E.CAP)+')';
  setText($('snText'),!S.perm.supernova?'Compre “Coração da Estrela” na árvore.':can?'O universo transbordou! Você vai ganhar '+fmt(d)+' de Poeira.':'Chegue em 1e300 pontos. Agora: '+fmt(S.points)+'. Se explodir com as Estrelas desta rodada você ganharia '+fmt(d)+' de Poeira.');
  const b=$('snBtn');b.disabled=!can;b.classList.toggle('ready',can);b.classList.add('neb');setText($('snBtnT'),can?'Explodir em Supernova (+'+fmt(d)+' Poeira)':'Ainda não');
+ $('bangBanner').hidden=!S.cons.bang;
+ for(const m of E.MILES)$('mile-'+m.n).classList.toggle('done',E.mile(S,m.n));
+ const bo=E.bhOpen(S);$('bhLock').hidden=bo;$('bhBox').hidden=!bo;
+ if(bo){const per=E.bhPeriod(S),dur=E.bhDur(S),ph=S.bh.t%per,act=ph<dur;setText($('bhState'),act?'Buraco Negro ATIVO':'Buraco Negro descansando');setText($('bhInfo'),'acelera o tempo ×'+fmt(E.bhPower(S)));
+  $('bhFill').style.transform='scaleX('+(act?1-ph/dur:(ph-dur)/(per-dur))+')';setText($('bhText'),act?'Tudo está andando ×'+fmt(E.bhPower(S))+' mais rápido por mais '+Math.ceil(dur-ph)+' s.':'Ativa de novo em '+Math.ceil(per-ph)+' s e fica ligado '+fmt(dur)+' s. Funciona sozinho.');
+  for(const u of E.BHUP){const el=refs['bhu-'+u.id],l=S.bh.lv[u.id],max=l>=u.max,p=u.price(l),ok=!max&&S.dust>=p;el.classList.toggle('can',ok);setText(el.querySelector('.lv'),'Nível '+l+'/'+u.max);const b3=el.querySelector('.buy');b3.disabled=!ok;setText(b3,max?'Completo':(ok?'Comprar por ':'Custa ')+fmt(p)+' Poeira')}}
  let n=0;for(const c of E.CONS){const el=refs['cons-'+c.id],l=S.cons[c.id],max=l>=c.max,p=c.price(l),ok=!max&&S.dust>=p;el.classList.toggle('can',ok);setText(el.querySelector('.lv'),'Nível '+l+'/'+c.max);
   const b2=el.querySelector('.buy');b2.disabled=!ok;setText(b2,max?'Completo':ok?'Comprar por '+fmt(p)+' Poeira':'Custa '+fmt(p)+' Poeira');setText(el.querySelector('.note'),max?'':'Faltam '+fmt(Math.max(0,p-S.dust))+' de Poeira.');if(ok)n++}
  return (can?1:0)+n}
+function renderWork(){$('workLock').hidden=S.perm.workshop;$('workList').hidden=!S.perm.workshop;let n=0;
+ for(const w of E.WORK){const el=refs['work-'+w.id],l=S.work[w.id],max=l>=w.max,p=E.planWork(S,w.id),price=w.price(l);el.classList.toggle('can',p.n>0);setText(el.querySelector('.lv'),'Nível '+l+(w.max<1e4?'/'+w.max:''));
+  const b=el.querySelector('.buy');b.disabled=!p.n;setText(b,max?'Completo':p.n?(p.n>1?'Comprar ×'+p.n+' por '+stars(p.cost):'Comprar por '+stars(price)):'Custa '+stars(price));setText(el.querySelector('.note'),max?'':p.n?'':'Faltam '+stars(Math.max(0,price-S.stars))+'.');if(p.n)n++}return n}
 function renderBreakdown(){const ol=$('breakdown'),base=S.amt[0]*E.genSelf(S,0),rows=[['Faíscas produzindo ('+fmt(S.amt[0])+')',base,'base'],...E.factors(S),['Total por segundo',E.rate(S),'total']];
  while(ol.childElementCount<rows.length){const li=document.createElement('li');li.append(document.createElement('span'),document.createElement('b'));ol.append(li)}
  while(ol.childElementCount>rows.length)ol.lastElementChild.remove();
@@ -1005,6 +1121,8 @@ function coach(){const s=S,say=(t,target,view,sb)=>{setText($('coachText'),t);co
  const u=E.unlockedGens(s);for(let k=u-1;k>=0;k--)if(E.planGen(s,k).n&&!((k<4&&s.perm.auto1||k>=4&&s.perm.auto2)&&E.robotsOn(s)))return say('Compre '+E.GENS[k].plural+(k?': elas produzem '+E.GENS[k-1].plural+' sozinhas.':': elas produzem pontos.'),'gen-'+k,'prod');
  if(E.planTick(s).n&&!(s.perm.autoTick&&E.robotsOn(s)))return say('Compre Velocidade: deixa todos os geradores mais rápidos.','up-tick','prod');
  if(E.canRebirth(s)&&!(s.perm.autoRb&&E.robotsOn(s)))return say('Renasça para ganhar '+stars(E.starGain(s))+'. Esperar mais dá mais Estrelas.','rebirthBlock','home');
+ if(s.perm.workshop){const w=E.WORK.find(w=>E.planWork(s,w.id).n);if(w)return say('Sobrou Estrela! Compre “'+w.name+'” na Oficina.','work-'+w.id,'stars','work')}
+ for(const u of E.BHUP)if(E.bhOpen(s)&&s.bh.lv[u.id]<u.max&&s.dust>=u.price(s.bh.lv[u.id]))return say('Melhore o Buraco Negro: '+u.name+'.','bhu-'+u.id,'nova');
  for(const c of E.CONS)if(S.cons[c.id]<c.max&&S.dust>=c.price(S.cons[c.id]))return say('Compre '+c.name+' com Poeira Estelar.','cons-'+c.id,'nova');
  if(s.perm.research&&s.lab.active.length<E.labSlots(s))return say('Seu Laboratório tem vaga livre: escolha uma pesquisa.','labList','stars','lab');
  const ch=E.CH.find(c=>E.chOpen(s,c)&&!E.won(s,c.id));if(ch&&s.starsTotal>50)return say('Tente o desafio “'+ch.name+'” para ganhar um prêmio eterno.','chal-'+ch.id,'stars','chal');
@@ -1013,11 +1131,12 @@ function coach(){const s=S,say=(t,target,view,sb)=>{setText($('coachText'),t);co
 function badge(id,n){const b=$(id);b.hidden=!n;if(n&&!b.classList.contains('dot'))setText(b,String(n))}
 function render(){const s=S,r=E.rate(s);
  setText($('hPoints'),fmt(s.points));setText($('hRate'),'+'+fmt(r)+'/s');setText($('hStars'),fmt(s.stars));$('hDustBox').hidden=!s.dustTotal;setText($('hDust'),fmt(s.dust));
- const met=E.meteorOn(s);$('hEvent').classList.toggle('on',met);setText($('hEventT'),met?'Chuva de meteoros ×3 · '+Math.ceil((s.meteorUntil-Date.now())/1000)+' s':'Céu calmo');
+ const met=E.meteorOn(s);$('hEvent').classList.toggle('on',met);setText($('hEventT'),met?'Chuva de meteoros ×'+E.meteorMul(s)+' · '+Math.ceil((s.meteorUntil-Date.now())/1000)+' s':'Céu calmo');
  const goal=E.chGoal(s);$('hRbFill').style.transform='scaleX('+logp(s.points,s.points>=E.RB_MIN&&!s.chActive?E.CAP:goal)+')';
  setText($('hRbLabel'),s.chActive?'Meta do desafio':s.points>=E.RB_MIN?'Pode renascer! Até o limite do universo:':'Até renascer (1e40)');
- const prodN=renderGens(),treeN=renderTree(),chalN=renderChal(),novaN=renderNova();
- badge('b-prod',prodN);badge('b-tree',treeN);badge('b-chal',chalN);badge('b-stars',treeN+chalN);badge('b-nova',novaN);badge('b-log',logNew&&current!=='log'?1:0);
+ const prodN=renderGens(),treeN=renderTree(),chalN=renderChal(),novaN=renderNova(),workN=renderWork();badge('b-work',workN);
+ const bo=E.bhOpen(s);$('hBH').hidden=!bo;$('hBH').classList.toggle('on',bo&&E.bhActive(s));if(bo){const per=E.bhPeriod(s),ph=s.bh.t%per,dur=E.bhDur(s);setText($('hBHT'),ph<dur?'Buraco Negro ×'+fmt(E.bhPower(s))+' · '+Math.ceil(dur-ph)+' s':'Buraco Negro em '+Math.ceil(per-ph)+' s')}
+ badge('b-prod',prodN);badge('b-tree',treeN);badge('b-chal',chalN);badge('b-stars',treeN+chalN+workN);badge('b-nova',novaN);badge('b-log',logNew&&current!=='log'?1:0);
  $('nav-nova').classList.toggle('locked',!s.perm.supernova&&!s.supernovas);
  if(current==='home'){setText($('points'),fmt(s.points));setText($('rate'),'+'+fmt(r)+' por segundo');
   $('rebirthBlock').hidden=!!s.chActive;$('challengeBlock').hidden=!s.chActive;
@@ -1046,7 +1165,7 @@ function go(view){current=view;for(const v of ['home','prod','stars','nova','log
  root.querySelectorAll('.nav').forEach(b=>{if(b.dataset.view===view)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
  if(view==='stars')setSub(sub);if(view==='log'){logNew=false;achDirty=true;requestAnimationFrame(drawChart)}if(view!=='help')S.seenHelp=true;if(reduce&&view==='home')requestAnimationFrame(drawOrrery);
  scrollTo({top:0});render()}
-function setSub(name){sub=name;root.querySelectorAll('[data-sub]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sub===name)));for(const n of ['tree','chal','lab'])$('sub-'+n).hidden=n!==name;if(name==='tree')requestAnimationFrame(layoutTree);if(name==='lab')renderLab()}
+function setSub(name){sub=name;root.querySelectorAll('[data-sub]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sub===name)));for(const n of ['tree','work','chal','lab'])$('sub-'+n).hidden=n!==name;if(name==='tree')requestAnimationFrame(layoutTree);if(name==='lab')renderLab();if(name==='work')renderWork()}
 root.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>go(b.dataset.view)));
 root.querySelectorAll('[data-sub]').forEach(b=>b.addEventListener('click',()=>{setSub(b.dataset.sub);render()}));
 $('helpBtn').addEventListener('click',()=>go('help'));
@@ -1078,7 +1197,7 @@ $('chart').addEventListener('blur',()=>{hoverI=-1;drawChart()});
 root.querySelectorAll('[data-mode]').forEach(b=>b.addEventListener('click',()=>{chartMode=b.dataset.mode;root.querySelectorAll('[data-mode]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));setText($('chartTitle'),chartMode==='p'?'Pontos ao longo do tempo':'Ganho por segundo ao longo do tempo');drawChart()}));
 
 /* ---------- tempo fora ---------- */
-(function offline(){const away=Math.min(8*3600,Math.max(0,(Date.now()-S.lastTick)/1000));if(away<30)return;
+(function offline(){const away=Math.min(E.offlineHours(S)*3600,Math.max(0,(Date.now()-S.lastTick)/1000));if(away<30)return;
  const labDone=E.labStep(S,away);const pct=E.offlinePct(S);let before=S.points;
  if(pct>0){const n=Math.min(600,Math.ceil(away)),dt=away/n*pct;for(let i=0;i<n;i++){E.step(S,dt,0);E.autoRun(S)}}
  setTimeout(()=>toast('moon','Bem-vindo de volta!','Você ficou fora '+fmtClock(away)+'.'+(pct>0?' Seus geradores trabalharam a '+Math.round(pct*100)+'%: agora você tem '+fmt(S.points)+' pontos.':' Compre “Sono Produtivo” na árvore para ganhar pontos fora.')+(labDone.length?' Pesquisas concluídas: '+labDone.length+'.':'')),700)})();
@@ -1090,10 +1209,10 @@ let last=performance.now(),floatClock=0,histClock=0;
 function checkAch(){const got=ACH.filter(a=>!S.ach.includes(a.id)&&a.test(S));if(!got.length)return;S.ach.push(...got.map(a=>a.id));achDirty=true;logNew=true;
  if(got.length===1)toast(got[0].icon,'Conquista: '+got[0].name,got[0].desc+'. +5% de ganho para sempre.');else toast('trophy',got.length+' novas conquistas!',got.map(a=>a.name).join(', ')+'.')}
 setInterval(()=>{const now=performance.now(),dt=Math.max(0,Math.min((now-last)/1000,30));last=now;const s=S,wall=Date.now();
- if(wall>=s.meteorNext&&!E.meteorOn(s,wall)){s.meteorUntil=wall+30000;s.meteors++;s.meteorNext=wall+30000+240000+Math.random()*240000;toast('comet','Chuva de meteoros!','Seu ganho fica ×3 por 30 segundos.')}
+ if(wall>=s.meteorNext&&!E.meteorOn(s,wall)){s.meteorUntil=wall+30000;s.meteors++;s.meteorNext=wall+30000+(240000+Math.random()*240000)/(s.perm.attractor?2:1);toast('comet','Chuva de meteoros!','Seu ganho fica ×'+E.meteorMul(s)+' por 30 segundos.')}
  const r=E.step(s,dt,wall);
  for(const done of E.labStep(s,dt))toast(done.icon,'Pesquisa concluída: '+done.name,'Agora no nível '+s.lab.lv[done.id]+'.');
- const res=E.autoRun(s);if(res){if(res.challenge){const c=E.CH.find(x=>x.id===res.challenge);toast('trophy','Desafio vencido: '+c.name+'!','Prêmio: '+c.reward)}else if(current==='home'){const p=center($('points'));floatText('+'+stars(res.stars),p.x,p.y-p.h,'star')}}
+ const res=E.autoRun(s);if(res&&res.nova!==undefined){toast('nova','Robô Supernova!','+'+fmt(res.nova)+' de Poeira.')}else if(res){if(res.challenge){const c=E.CH.find(x=>x.id===res.challenge);toast('trophy','Desafio vencido: '+c.name+'!','Prêmio: '+c.reward)}else if(current==='home'){const p=center($('points'));floatText('+'+stars(res.stars),p.x,p.y-p.h,'star')}}
  checkAch();
  histClock+=dt;if(histClock>=10){histClock=0;s.hist.push({t:wall,p:s.points,g:r});if(s.hist.length>360)s.hist.shift();if(current==='log')drawChart()}
  floatClock+=dt;if(floatClock>=1){floatClock=0;if(current==='home'&&!document.hidden&&r>0){const c=center($('points'));if(c.r.bottom>0&&c.r.top<innerHeight)floatText('+'+fmt(r),c.x+(Math.random()-.5)*c.w*.5,c.y-c.h*.6,'gain')}}
